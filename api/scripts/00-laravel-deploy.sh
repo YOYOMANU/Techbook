@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-echo "==> Installing dependencies..."
-composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
+echo "==> Installing composer dependencies..."
+composer install --no-dev --optimize-autoloader
+
+echo "==> Generating app key if missing..."
+php artisan key:generate --force
 
 echo "==> Caching config & routes..."
 php artisan config:cache
