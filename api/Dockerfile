@@ -1,17 +1,27 @@
-FROM richarvey/nginx-php-fpm:latest
+FROM php:8.4-fpm
+
+# Installer les extensions nécessaires
+RUN apt-get update && apt-get install -y \
+    nginx \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    curl \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+
+# Installer Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
 
 COPY . .
 
-# Installer les dépendances PHP directement dans le build
 RUN composer install --no-dev --optimize-autoloader
 
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
-ENV COMPOSER_ALLOW_SUPERUSER 1
+COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
 
-CMD ["/start.sh"]
+EXPOSE 80
+
+CMD service nginx start && php-fpm
