@@ -1,14 +1,17 @@
-#!/usr/bin/env bash
+server {
+    listen 80;
+    server_name _;
+    root /var/www/html/public;
+    index index.php;
 
-echo "==> Installing composer dependencies..."
-composer install --no-dev --optimize-autoloader
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
 
-echo "==> Generating app key if missing..."
-php artisan key:generate --force
-
-echo "==> Caching config & routes..."
-php artisan config:cache
-php artisan route:cache
-
-echo "==> Running migrations..."
-php artisan migrate --force
+    location ~ \.php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
