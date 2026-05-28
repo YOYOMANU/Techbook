@@ -2,7 +2,9 @@ FROM richarvey/nginx-php-fpm:latest
 
 COPY . .
 
-ENV SKIP_COMPOSER 1
+# Installer les dépendances PHP directement dans le build
+RUN composer install --no-dev --optimize-autoloader
+
 ENV WEBROOT /var/www/html/public
 ENV PHP_ERRORS_STDERR 1
 ENV RUN_SCRIPTS 1
