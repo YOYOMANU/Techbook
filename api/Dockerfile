@@ -21,6 +21,10 @@ RUN composer install --no-dev --optimize-autoloader
 
 COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
 
+RUN echo '#!/bin/bash\nphp-fpm -D\nservice nginx start\ntail -f /var/log/nginx/error.log' > /start.sh \
+    && chmod +x /start.sh
+
+ENV PORT=80
 EXPOSE 80
 
-CMD service nginx start && php-fpm
+CMD ["/start.sh"]
