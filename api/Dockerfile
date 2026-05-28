@@ -19,6 +19,10 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
+# Fixer les permissions storage
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
 
 RUN chmod +x /var/www/html/start.sh
