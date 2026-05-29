@@ -17,11 +17,11 @@ class Technology extends Model implements HasMedia
     use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
-        'user_id',   // ← ajouté
+        'user_id',
         'name',
         'description',
         'level_id',
-        'status',    // ← ajouté : 'mastered' | 'learning' | 'to_explore'
+        'status_id',
         'favoris',
     ];
 
@@ -67,5 +67,10 @@ class Technology extends Model implements HasMedia
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class, 'level_id');
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(Status::class, 'status_id');
     }
 }

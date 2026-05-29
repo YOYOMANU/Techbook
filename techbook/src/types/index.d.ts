@@ -10,6 +10,7 @@ export interface Technology {
   categories: category[];
   level: Level;
   favoris: boolean;
+  status: string;
   image?: string;
 }
 

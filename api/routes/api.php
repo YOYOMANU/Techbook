@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LevelController;
+use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TechnologyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,13 @@ Route::get('/levels/{level}', [LevelController::class, 'show']);
 Route::post('/levels', [LevelController::class, 'store']);
 Route::put('/levels/{level}', [LevelController::class, 'update']);
 Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
+
+// ─── Status ──────────────────────────────────────────────────
+Route::get('/statuses', [StatusController::class, 'index']);
+Route::get('/statuses/{status}', [StatusController::class, 'show']);
+Route::post('/statuses', [LevelController::class, 'store']);
+Route::put('/statuses/{status}', [StatusController::class, 'update']);
+Route::delete('/statuses/{status}', [StatusController::class, 'destroy']);
 
 // ─── Categories ──────────────────────────────────────────────
 Route::get('/categories', [CategoryController::class, 'index']);

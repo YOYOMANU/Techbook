@@ -7,22 +7,37 @@ import { ThemeProvider } from "./components/theme-provider.tsx";
 import { Toaster } from "./components/ui/sonner";
 import TechnologyForm from "./pages/technology-form.tsx";
 import TechnologiesLayout from "./layout/TechnologiesLayout.tsx";
+import LoginPage from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import { AuthProvider } from "./context/AuthContext.tsx";
 
 const router = createBrowserRouter([
+  // ✅ Route publique
+  { path: "/login", element: <LoginPage /> },
+
+  // ✅ Routes protégées
   {
-    element: <TechnologiesLayout />, // layout parent
+    element: <ProtectedRoute children={<TechnologiesLayout />} />,
     children: [
-      { path: "/", element: <App /> },
-      { path: "/add", element: <TechnologyForm /> },
-      { path: "/edit/:id", element: <TechnologyForm /> },
+      {
+        element: <TechnologiesLayout />,
+        children: [
+          { path: "/", element: <App /> },
+          { path: "/add", element: <TechnologyForm /> },
+          { path: "/edit/:id", element: <TechnologyForm /> },
+        ],
+      },
     ],
   },
 ]);
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <RouterProvider router={router} />
-      <Toaster closeButton position="top-center" richColors />
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <Toaster closeButton position="top-center" richColors />
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>,
 );

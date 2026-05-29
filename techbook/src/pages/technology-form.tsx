@@ -29,6 +29,7 @@ const skillSchema = z.object({
     .min(1, "Au moins une catégorie est requise"),
   description: z.string().optional(),
   favoris: z.boolean(),
+  status: z.string(),
   image: z
     .instanceof(FileList)
     .optional()
