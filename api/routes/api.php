@@ -49,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar']);
 
     Route::apiResource('technologies', TechnologyController::class);
 });

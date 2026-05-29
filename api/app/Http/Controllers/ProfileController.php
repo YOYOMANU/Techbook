@@ -61,4 +61,26 @@ class ProfileController extends Controller
 
         return response()->noContent();
     }
+
+    public function updateAvatar(Request $request)
+{
+    $request->validate([
+        'avatar' => 'required|image|mimes:jpeg,png,webp|max:2048',
+    ]);
+
+    $user = $request->user();
+
+    // Spatie gère la suppression de l'ancien grâce à singleFile()
+    $user->addMediaFromRequest('avatar')
+        ->toMediaCollection('avatar');
+
+    return response()->json(['user' => $user->fresh()->append('avatar_url')]);
+}
+
+public function destroyAvatar(Request $request)
+{
+    $request->user()->clearMediaCollection('avatar');
+
+    return response()->json(['user' => $request->user()->fresh()->append('avatar_url')]);
+}
 }
