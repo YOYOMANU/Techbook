@@ -1,14 +1,8 @@
-import {
-  PlusIcon,
-  Layers,
-  SearchIcon,
-  LogOutIcon,
-  UserIcon,
-} from "lucide-react";
+import { Layers, SearchIcon, LogOutIcon, UserIcon } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { InputGroup, InputGroupInput, InputGroupAddon } from "./ui/input-group";
 import { Button } from "./ui/button";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useTechnologies } from "../context/Technologies-context";
 import { useAuth } from "@/context/AuthContext";
@@ -30,7 +24,6 @@ export default function Header() {
   const { setSearch } = useTechnologies();
   const { register, handleSubmit } = useForm<FormValue>();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
 
   const { user, logout } = useAuth();
 
@@ -67,20 +60,10 @@ export default function Header() {
       </form>
 
       <div className="flex gap-2 items-center">
-        {pathname === "/" && (
-          <Button
-            onClick={() => navigate("/add")}
-            className="hover:cursor-pointer"
-          >
-            <PlusIcon />
-            Ajouter
-          </Button>
-        )}
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="ml-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-              <AvatarImage src={""} />
+              <AvatarImage src={user?.avatar_url} />
               <AvatarFallback>
                 {user?.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>

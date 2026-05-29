@@ -12,11 +12,13 @@ import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import Register from "./pages/Register.tsx";
 import ProfilePage from "./pages/Profile.tsx";
+import NotFoundPage from "./pages/NotFound.tsx";
 
 const router = createBrowserRouter([
   // ✅ Route publique
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <Register /> },
+  { path: "*", element: <NotFoundPage /> },
 
   // ✅ Routes protégées
   {

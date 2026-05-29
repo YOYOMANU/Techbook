@@ -15,20 +15,20 @@ import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate("/");
+      navigate("/", { state: { toast: `Bienvenue ${user?.name}` } });
     } catch (err) {
       setError("Email ou mot de passe incorrect.");
     } finally {

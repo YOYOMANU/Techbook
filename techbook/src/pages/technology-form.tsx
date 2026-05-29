@@ -120,21 +120,29 @@ export default function TechnologyForm() {
     if (data.image?.[0]) formData.append("image", data.image[0]);
 
     try {
+      let message = "";
       if (isEdit) {
+        message = "Technologie mise à jour avec succès !";
         await updateTechnology(id!, formData);
-        refresh();
-        navigate("/", {
-          replace: true,
-          state: { toast: "Technologie mise à jour avec succès !" },
-        });
+        // refresh();
+        // navigate("/", {
+        //   replace: true,
+        //   state: { toast: "Technologie mise à jour avec succès !" },
+        // });
       } else {
+        message = "Technologie ajoutée avec succès !";
         await createTechnology(formData);
-        refresh();
-        navigate("/", {
-          replace: true,
-          state: { toast: "Technologie ajoutée avec succès !" },
-        });
+        // refresh();
+        // navigate("/", {
+        //   replace: true,
+        //   state: { toast: "Technologie ajoutée avec succès !" },
+        // });
       }
+      refresh();
+      navigate("/", {
+        replace: true,
+        state: { toast: message },
+      });
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 422) {
         const serverErrors = error.response.data.errors as Record<
@@ -152,8 +160,11 @@ export default function TechnologyForm() {
     return (
       <>
         <Header />
-        <div className="max-w-xl mx-auto my-10 px-4 flex justify-center">
-          <Spinner />
+        <div className="flex justify-center items-center my-70">
+          <Button variant="secondary" disabled size="sm">
+            <Spinner data-icon="inline-start" />
+            Patienter
+          </Button>
         </div>
       </>
     );

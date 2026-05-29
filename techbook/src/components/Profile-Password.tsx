@@ -15,7 +15,6 @@ import { ErrorBanner } from "./ui/Error-Banner";
 import { PasswordInput } from "./Password-Input";
 import { Label } from "../components/ui/label";
 import { Button } from "./ui/button";
-import { useAuth } from "@/context/AuthContext";
 
 const passwordSchema = z
   .object({

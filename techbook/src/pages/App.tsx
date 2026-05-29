@@ -21,7 +21,7 @@ function App() {
       toast.success(location.state.toast);
       window.history.replaceState({}, "");
     }
-  }, [location.state?.toast]);
+  }, []);
 
   if (loading || !collection)
     return (
@@ -43,7 +43,7 @@ function App() {
         <TableSkills />
       ) : (
         <Label className="flex justify-center items-center mt-35">
-          Aucune technologie pour l'instant{" "}
+          Aucune technologie pour l'instant
         </Label>
       )}
     </>

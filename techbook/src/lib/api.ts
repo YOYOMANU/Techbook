@@ -35,7 +35,7 @@ api.interceptors.response.use(
 // ✅ Auth
 export async function login(email: string, password: string) {
   const response = await api.post("/login", { email, password });
-  return response.data; 
+  return response.data;
 }
 
 export async function register(
@@ -63,7 +63,6 @@ export async function getMe() {
   return response.data;
 }
 
-
 export async function updateProfile(name: string, email: string) {
   const response = await api.put("/profile", { name, email });
   return response.data;
@@ -84,6 +83,18 @@ export async function updatePassword(
 
 export async function deleteAccount(password: string) {
   const response = await api.delete("/profile", { data: { password } });
+  return response.data;
+}
+
+export async function updateAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("avatar", file);
+  const response = await api.post("/profile/avatar", formData);
+  return response.data;
+}
+
+export async function destroyAvatar() {
+  const response = await api.delete("/profile/avatar");
   return response.data;
 }
 

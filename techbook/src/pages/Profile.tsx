@@ -2,6 +2,7 @@ import InfoProfile from "@/components/Info-Profile";
 import ProfilePassword from "@/components/Profile-Password";
 import DeleteAccount from "@/components/Delete-account";
 import Header from "@/components/header";
+import ProfileAvatar from "@/components/ProfileAvatar";
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ export default function Profile() {
           </p>
         </div>
 
+        <ProfileAvatar />
         {/* ── Infos profil ── */}
         <InfoProfile />
         {/* ── Mot de passe ── */}

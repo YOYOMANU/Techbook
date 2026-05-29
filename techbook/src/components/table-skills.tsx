@@ -2,17 +2,33 @@ import { useTechnologies } from "../context/Technologies-context";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table";
 import TechnologyRow from "./technology-row";
 import { CollectionPagination } from "./Collection-Pagination";
+import { Button } from "./ui/button";
+import { useLocation, useNavigate } from "react-router-dom";
+import { PlusIcon } from "lucide-react";
 
 export default function TableSkills() {
-  const { collection, loading, error, setPage, refresh } = useTechnologies();
+  const { collection, error, setPage, refresh } = useTechnologies();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  if (loading) return <p className="text-center mt-8">Chargement...</p>;
   if (error) return <p className="text-center mt-8 text-red-500">{error}</p>;
   if (!collection) return null;
 
   return (
     <div className="max-w-6xl mx-auto my-8 px-4">
-      <h2>Toutes les technologies</h2>
+      <div className="flex items-center justify-between">
+        <h2>Toutes les technologies</h2>
+        {pathname === "/" && (
+          <Button
+            onClick={() => navigate("/add")}
+            className="hover:cursor-pointer mb-2"
+          >
+            <PlusIcon />
+            Ajouter
+          </Button>
+        )}
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>

@@ -3,6 +3,27 @@ export type RecapElement = {
   description: string;
 }[];
 
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar_url: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  setUser: (user: User | null) => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string,
+  ) => Promise<void>;
+}
+
 export interface Technology {
   id: number;
   name: string;

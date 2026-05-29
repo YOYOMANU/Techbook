@@ -5,26 +5,7 @@ import {
   register as apiRegister,
   getMe,
 } from "../lib/api";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
-
-type AuthContextType = {
-  user: User | null;
-  loading: boolean;
-  setUser: (user: User | null) => void;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (
-    name: string,
-    email: string,
-    password: string,
-    password_confirmation: string,
-  ) => Promise<void>;
-};
+import type { AuthContextType, User } from "@/types";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
