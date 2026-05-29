@@ -21,8 +21,8 @@ class Technology extends Model implements HasMedia
         'name',
         'description',
         'level_id',
-        'status_id',
         'favoris',
+        'status_id',
     ];
 
     protected $casts = [

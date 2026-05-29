@@ -71,8 +71,10 @@ class TechnologyController extends Controller
      */
     public function store(TechnologyFormRequest $request)
     {
+
         $validated = $request->validated();
         $validated['favoris'] = $request->boolean('favoris');
+
 
         // ✅ user_id assigné automatiquement via la relation
         $technology = $request->user()->technologies()->create($validated);
