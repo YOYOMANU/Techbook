@@ -26,7 +26,7 @@ Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 // ─── Status ──────────────────────────────────────────────────
 Route::get('/statuses', [StatusController::class, 'index']);
 Route::get('/statuses/{status}', [StatusController::class, 'show']);
-Route::post('/statuses', [LevelController::class, 'store']);
+Route::post('/statuses', [StatusController::class, 'store']);
 Route::put('/statuses/{status}', [StatusController::class, 'update']);
 Route::delete('/statuses/{status}', [StatusController::class, 'destroy']);
 
