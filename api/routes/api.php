@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LevelController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TechnologyController;
 use Illuminate\Http\Request;
@@ -43,6 +44,11 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', fn(Request $r) => $r->user());
     Route::post('/logout', [AuthController::class, 'logout']);
+
+      // Profil
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
 
     Route::apiResource('technologies', TechnologyController::class);
 });
