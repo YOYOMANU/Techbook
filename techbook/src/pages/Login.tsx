@@ -79,6 +79,7 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
+      <Button onClick={() => navigate("/register")}>creer un compte</Button>
     </div>
   );
 }

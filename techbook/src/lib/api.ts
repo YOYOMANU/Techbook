@@ -38,6 +38,21 @@ export async function login(email: string, password: string) {
   return response.data; // { user, token }
 }
 
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+  password_confirmation: string,
+) {
+  const response = await api.post("/register", {
+    name,
+    email,
+    password,
+    password_confirmation, // ✅ était "confirm_password" avant
+  });
+  return response.data;
+}
+
 export async function logout() {
   await api.post("/logout");
   localStorage.removeItem("token");
@@ -88,6 +103,16 @@ export async function getCategories() {
 export async function getLevels() {
   try {
     const response = await api.get("/levels");
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function getStatuses() {
+  try {
+    const response = await api.get("/statuses");
     return response.data.data;
   } catch (error) {
     console.error(error);

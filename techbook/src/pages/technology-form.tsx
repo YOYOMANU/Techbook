@@ -10,12 +10,13 @@ import {
   createTechnology,
   getCategories,
   getLevels,
+  getStatuses,
   getTechnology,
   updateTechnology,
 } from "../lib/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { ImageInput } from "../components/ui/image-input";
-import type { Category, Level, Technology } from "../types";
+import type { Category, Level, Status, Technology } from "../types";
 import { useEffect, useState } from "react";
 import { useTechnologies } from "../context/Technologies-context";
 import { Checkbox } from "../components/ui/checkbox";
@@ -24,12 +25,12 @@ import { Label } from "../components/ui/label";
 const skillSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   level_id: z.coerce.number().min(1, "Le niveau est requis"),
+  status_id: z.coerce.number().min(1, "Le status est requis"),
   category_ids: z
     .array(z.coerce.number())
     .min(1, "Au moins une catégorie est requise"),
   description: z.string().optional(),
   favoris: z.boolean(),
-  status: z.string(),
   image: z
     .instanceof(FileList)
     .optional()
@@ -56,11 +57,13 @@ export default function TechnologyForm() {
   const [technology, setTechnology] = useState<Technology | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
   const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
     getCategories().then(setCategories);
     getLevels().then(setLevels);
+    getStatuses().then(setStatuses);
   }, []);
 
   const {
@@ -92,6 +95,7 @@ export default function TechnologyForm() {
           name: data.name ?? "",
           description: data.description ?? "",
           level_id: data.level?.id,
+          status_id: data.status?.id,
           favoris: data.favoris ?? false,
           category_ids: data.categories?.map((c) => c.id) ?? [],
         });
@@ -107,6 +111,7 @@ export default function TechnologyForm() {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("level_id", String(data.level_id));
+    formData.append("status_id", String(data.status_id));
     formData.append("favoris", data.favoris ? "1" : "0");
     data.category_ids.forEach((catId) =>
       formData.append("category_ids[]", String(catId)),
@@ -218,6 +223,25 @@ export default function TechnologyForm() {
             {errors.level_id && (
               <p className="text-destructive text-sm">
                 {errors.level_id.message}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Status</label>
+            <select
+              className="border rounded-md px-3 py-2 text-sm bg-background"
+              {...register("status_id")}
+            >
+              <option value=""> -- Choisir un Status --</option>
+              {statuses.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            {errors.status_id && (
+              <p className="text-destructive text-sm">
+                {errors.status_id.message}
               </p>
             )}
           </div>

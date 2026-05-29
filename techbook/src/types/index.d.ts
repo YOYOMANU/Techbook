@@ -10,7 +10,7 @@ export interface Technology {
   categories: category[];
   level: Level;
   favoris: boolean;
-  status: string;
+  status: status;
   image?: string;
 }
 
@@ -19,6 +19,10 @@ export type Category = {
   name: string;
 };
 export type Level = {
+  id: number;
+  name: string;
+};
+export type Status = {
   id: number;
   name: string;
 };

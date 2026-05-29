@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { useTechnologies } from "../context/Technologies-context";
+import { Label } from "@/components/ui/label";
 
 function App() {
   const location = useLocation();
@@ -21,9 +22,6 @@ function App() {
       window.history.replaceState({}, "");
     }
   }, [location.state?.toast]);
-
-  console.log(collection);
-  
 
   if (loading || !collection)
     return (
@@ -41,7 +39,13 @@ function App() {
       <Recap data={collection} />
       <RecentlyItems />
       <FilterSkills />
-      <TableSkills />
+      {collection.data.length > 0 ? (
+        <TableSkills />
+      ) : (
+        <Label className="flex justify-center items-center mt-35">
+          Aucune technologie pour l'instant{" "}
+        </Label>
+      )}
     </>
   );
 }

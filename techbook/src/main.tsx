@@ -10,10 +10,12 @@ import TechnologiesLayout from "./layout/TechnologiesLayout.tsx";
 import LoginPage from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
+import Register from "./pages/Register.tsx";
 
 const router = createBrowserRouter([
   // ✅ Route publique
   { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <Register /> },
 
   // ✅ Routes protégées
   {

@@ -1,4 +1,10 @@
-import { PlusIcon, Layers, SearchIcon, LogOutIcon } from "lucide-react";
+import {
+  PlusIcon,
+  Layers,
+  SearchIcon,
+  LogOutIcon,
+  UserIcon,
+} from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { InputGroup, InputGroupInput, InputGroupAddon } from "./ui/input-group";
 import { Button } from "./ui/button";
@@ -7,6 +13,14 @@ import { useForm } from "react-hook-form";
 import { useTechnologies } from "../context/Technologies-context";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 type FormValue = {
   search: string;
@@ -51,7 +65,8 @@ export default function Header() {
         </InputGroup>
         <Button type="submit">Rechercher</Button>
       </form>
-      <div className="flex gap-2">
+
+      <div className="flex gap-2 items-center">
         {pathname === "/" && (
           <Button
             onClick={() => navigate("/add")}
@@ -61,24 +76,40 @@ export default function Header() {
             Ajouter
           </Button>
         )}
-        <div className="flex items-center gap-4">
-          {/* <span className="text-sm text-muted-foreground">{user?.name}</span> */}
-          <Avatar className="ml-2">
-            <AvatarImage src={""} />
-            <AvatarFallback>
-              {user?.name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <Button
-            variant="destructive"
-            className="hover:cursor-pointer"
-            size="sm"
-            onClick={handleLogout}
-          >
-            <LogOutIcon />
-            Déconnexion
-          </Button>
-        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="ml-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+              <AvatarImage src={""} />
+              <AvatarFallback>
+                {user?.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="font-normal">
+              <p className="font-medium">{user?.name}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => navigate("/profile")}
+              className="cursor-pointer"
+            >
+              <UserIcon className="mr-2 h-4 w-4" />
+              Profil
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
+              <LogOutIcon className="mr-2 h-4 w-4" />
+              Déconnexion
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <ModeToggle />
       </div>
     </header>
