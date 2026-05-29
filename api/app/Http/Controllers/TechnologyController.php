@@ -52,15 +52,15 @@ class TechnologyController extends Controller
         'total' => (clone $userTechs)->count(),
 
         'maitrises' => (clone $userTechs)
-            ->whereHas('status', fn ($q) => $q->where('name', 'mastered'))
+            ->whereHas('status', fn ($q) => $q->where('name', 'Maîtrisée'))
             ->count(),
 
         'en_cours' => (clone $userTechs)
-            ->whereHas('status', fn ($q) => $q->where('name', 'learning'))
+            ->whereHas('status', fn ($q) => $q->where('name', 'En cour'))
             ->count(),
 
         'a_explorer' => (clone $userTechs)
-            ->whereHas('status', fn ($q) => $q->where('name', 'exploring'))
+            ->whereHas('status', fn ($q) => $q->where('name', 'À explorer'))
             ->count(),
     ],
         ]);
