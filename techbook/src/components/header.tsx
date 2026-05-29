@@ -43,7 +43,7 @@ export default function Header() {
         <Button type="submit">Rechercher</Button>
       </form>
       <div className="flex gap-2">
-        {pathname !== "/add" && (
+        {pathname === "/" && (
           <Button
             onClick={() => navigate("/add")}
             className="hover:cursor-pointer"

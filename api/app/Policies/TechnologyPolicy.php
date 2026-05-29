@@ -13,7 +13,7 @@ class TechnologyPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class TechnologyPolicy
      */
     public function view(User $user, Technology $technology): bool
     {
-        return false;
+        return $user->id === $technology->user_id;
     }
 
     /**
@@ -29,7 +29,7 @@ class TechnologyPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class TechnologyPolicy
      */
     public function update(User $user, Technology $technology): bool
     {
-        return false;
+        return $user->id === $technology->user_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class TechnologyPolicy
      */
     public function delete(User $user, Technology $technology): bool
     {
-        return false;
+        return $user->id === $technology->user_id;
     }
 
     /**

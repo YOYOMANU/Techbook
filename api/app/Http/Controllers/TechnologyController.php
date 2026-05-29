@@ -17,14 +17,17 @@ class TechnologyController extends Controller
         $sort   = $request->query('sort');
         $search = $request->query('search');
 
-        $query = Technology::with(['categories', 'level']);
+        // ✅ Scoping : on part toujours des techs de l'user connecté
+        $query = $request->user()
+            ->technologies()
+            ->with(['categories', 'level']);
 
         if ($search) {
             $query->where('name', 'LIKE', "%{$search}%");
         }
 
         if ($sort) {
-            $query->whereHas('categories', fn ($q) =>
+            $query->whereHas('categories', fn($q) =>
                 $q->where('slug', $sort)->orWhere('name', $sort)
             );
         }
@@ -33,37 +36,46 @@ class TechnologyController extends Controller
             ->paginate(10)
             ->appends($request->only(['sort', 'search']));
 
+        // ✅ Stats et recents également scopés sur l'user connecté
+        $userTechs = $request->user()->technologies();
+
         return TechnologyResource::collection($technologies)->additional([
             'recents' => TechnologyResource::collection(
-                Technology::with(['categories', 'level'])
-                    ->latest()->take(3)->get()
+                $request->user()
+                    ->technologies()
+                    ->with(['categories', 'level'])
+                    ->latest()
+                    ->take(3)
+                    ->get()
             ),
             'stats' => [
-                'total'      => Technology::count(),
-                'maitrises'  => Technology::whereHas('level', fn ($q) => $q->where('name', 'senior'))->count(),
-                'en_cours'   => Technology::whereHas('level', fn ($q) => $q->where('name', 'intermediaire'))->count(),
-                'a_explorer' => Technology::whereHas('level', fn ($q) => $q->where('name', 'debutant'))->count(),
+                'total'      => (clone $userTechs)->count(),
+                'maitrises'  => (clone $userTechs)->where('status', 'mastered')->count(),
+                'en_cours'   => (clone $userTechs)->where('status', 'learning')->count(),
+                'a_explorer' => (clone $userTechs)->where('status', 'to_explore')->count(),
             ],
         ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(TechnologyFormRequest $request)
     {
-
         $validated = $request->validated();
         $validated['favoris'] = $request->boolean('favoris');
-        $technology = Technology::create($validated);
+
+        // ✅ user_id assigné automatiquement via la relation
+        $technology = $request->user()->technologies()->create($validated);
 
         $technology->categories()->attach($validated['category_ids']);
+
         if ($request->hasFile('image')) {
             $technology
                 ->addMediaFromRequest('image')
                 ->toMediaCollection('image');
         }
+
         $technology->load(['categories', 'level']);
 
         return new TechnologyResource($technology);
@@ -74,6 +86,8 @@ class TechnologyController extends Controller
      */
     public function show(Technology $technology)
     {
+        // ✅ Vérifie que la tech appartient à l'user connecté
+        $this->authorize('view', $technology);
 
         $technology->load(['categories', 'level']);
 
@@ -85,20 +99,26 @@ class TechnologyController extends Controller
      */
     public function update(TechnologyFormRequest $request, Technology $technology)
     {
+        // ✅ Vérifie que la tech appartient à l'user connecté
+        $this->authorize('update', $technology);
 
         $validated = $request->validated();
         $validated['favoris'] = $request->boolean('favoris');
 
         $technology->update($validated);
-        if ($validated['category_ids']) {
+
+        // ✅ isset() pour ne sync que si category_ids est présent dans la requête
+        if (isset($validated['category_ids'])) {
             $technology->categories()->sync($validated['category_ids']);
         }
 
         if ($request->hasFile('image')) {
             $technology
                 ->addMediaFromRequest('image')
-                ->toMediaCollection('image'); // singleFile() supprime l'ancienne
+                ->toMediaCollection('image');
         }
+
+        $technology->load(['categories', 'level']);
 
         return new TechnologyResource($technology);
     }
@@ -108,6 +128,9 @@ class TechnologyController extends Controller
      */
     public function destroy(Technology $technology)
     {
+        // ✅ Vérifie que la tech appartient à l'user connecté
+        $this->authorize('delete', $technology);
+
         $technology->categories()->detach();
         $technology->delete();
 
