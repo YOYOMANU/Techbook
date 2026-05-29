@@ -35,7 +35,7 @@ api.interceptors.response.use(
 // ✅ Auth
 export async function login(email: string, password: string) {
   const response = await api.post("/login", { email, password });
-  return response.data; // { user, token }
+  return response.data; 
 }
 
 export async function register(
@@ -48,7 +48,7 @@ export async function register(
     name,
     email,
     password,
-    password_confirmation, // ✅ était "confirm_password" avant
+    password_confirmation,
   });
   return response.data;
 }
@@ -63,7 +63,29 @@ export async function getMe() {
   return response.data;
 }
 
-// --- vos fonctions existantes inchangées ---
+
+export async function updateProfile(name: string, email: string) {
+  const response = await api.put("/profile", { name, email });
+  return response.data;
+}
+
+export async function updatePassword(
+  current_password: string,
+  password: string,
+  password_confirmation: string,
+) {
+  const response = await api.put("/profile/password", {
+    current_password,
+    password,
+    password_confirmation,
+  });
+  return response.data;
+}
+
+export async function deleteAccount(password: string) {
+  const response = await api.delete("/profile", { data: { password } });
+  return response.data;
+}
 
 export async function getTechnologies(page = 1) {
   try {

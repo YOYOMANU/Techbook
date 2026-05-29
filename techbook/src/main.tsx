@@ -11,6 +11,7 @@ import LoginPage from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import Register from "./pages/Register.tsx";
+import ProfilePage from "./pages/Profile.tsx";
 
 const router = createBrowserRouter([
   // ✅ Route publique
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
           { path: "/", element: <App /> },
           { path: "/add", element: <TechnologyForm /> },
           { path: "/edit/:id", element: <TechnologyForm /> },
+          { path: "/profile", element: <ProfilePage /> },
         ],
       },
     ],

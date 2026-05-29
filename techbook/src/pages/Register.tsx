@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import { EyeIcon, EyeClosedIcon } from "lucide-react";
 
@@ -191,18 +192,22 @@ export default function RegisterPage() {
             </Button>
           </form>
         </CardContent>
+        {/* Lien retour vers login */}
+        <Label className="mx-auto">
+          Déjà un compte ?
+          <Button
+            variant="ghost"
+            className="hover:cursor-pointer"
+            onClick={() =>
+              navigate("/login", {
+                state: { toast: "compte créé avec succès !" },
+              })
+            }
+          >
+            Se connecter
+          </Button>
+        </Label>
       </Card>
-
-      {/* Lien retour vers login */}
-      <Button
-        variant="ghost"
-        className="absolute bottom-6"
-        onClick={() =>
-          navigate("/login", { state: { toast: "compte créé avec succès !" } })
-        }
-      >
-        Déjà un compte ? Se connecter
-      </Button>
     </div>
   );
 }
