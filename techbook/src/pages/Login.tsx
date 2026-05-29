@@ -103,11 +103,7 @@ export default function LoginPage() {
             <Button
               variant="ghost"
               className="hover:cursor-pointer"
-              onClick={() =>
-                navigate("/login", {
-                  state: { toast: "compte créé avec succès !" },
-                })
-              }
+              onClick={() => navigate("/register")}
             >
               Creer un compte
             </Button>

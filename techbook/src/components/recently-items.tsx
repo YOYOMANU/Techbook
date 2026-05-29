@@ -27,7 +27,6 @@ export default function RecentlyItems() {
                 <Avatar className="mb-1">
                   <AvatarImage src={technology.image} />
                   <AvatarFallback>
-                    {" "}
                     {technology.name.slice(0, 2).toUpperCase()}{" "}
                   </AvatarFallback>
                 </Avatar>
