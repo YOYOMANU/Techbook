@@ -20,7 +20,7 @@ class TechnologyController extends Controller
         // ✅ Scoping : on part toujours des techs de l'user connecté
         $query = $request->user()
             ->technologies()
-            ->with(['categories', 'level']);
+            ->with(['categories', 'level', 'status']);
 
         if ($search) {
             $query->where('name', 'LIKE', "%{$search}%");
@@ -43,17 +43,26 @@ class TechnologyController extends Controller
             'recents' => TechnologyResource::collection(
                 $request->user()
                     ->technologies()
-                    ->with(['categories', 'level'])
+                    ->with(['categories', 'level', 'status'])
                     ->latest()
                     ->take(3)
                     ->get()
             ),
-            'stats' => [
-                'total'      => (clone $userTechs)->count(),
-                'maitrises'  => (clone $userTechs)->where('status', 'mastered')->count(),
-                'en_cours'   => (clone $userTechs)->where('status', 'learning')->count(),
-                'a_explorer' => (clone $userTechs)->where('status', 'to_explore')->count(),
-            ],
+             'stats' => [
+        'total' => (clone $userTechs)->count(),
+
+        'maitrises' => (clone $userTechs)
+            ->whereHas('status', fn ($q) => $q->where('name', 'mastered'))
+            ->count(),
+
+        'en_cours' => (clone $userTechs)
+            ->whereHas('status', fn ($q) => $q->where('name', 'learning'))
+            ->count(),
+
+        'a_explorer' => (clone $userTechs)
+            ->whereHas('status', fn ($q) => $q->where('name', 'exploring'))
+            ->count(),
+    ],
         ]);
     }
 

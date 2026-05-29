@@ -22,6 +22,9 @@ function App() {
     }
   }, [location.state?.toast]);
 
+  console.log(collection);
+  
+
   if (loading || !collection)
     return (
       <div className="flex justify-center items-center my-70">
