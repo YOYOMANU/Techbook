@@ -9,7 +9,6 @@ import { Button } from "../components/ui/button";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { useTechnologies } from "../context/Technologies-context";
-import { Label } from "@/components/ui/label";
 
 function App() {
   const location = useLocation();
@@ -21,7 +20,7 @@ function App() {
       toast.success(location.state.toast);
       window.history.replaceState({}, "");
     }
-  }, []);
+  }, [location.state]);
 
   if (loading || !collection)
     return (

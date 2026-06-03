@@ -24,27 +24,6 @@ export default function TechnologyRow({ technology, onDelete, mobile }: Props) {
     toast.success("Technologie supprimée avec succès !");
   };
 
-  const CategoryBadges = () => (
-    <div className="flex flex-wrap gap-1">
-      {(technology.categories ?? []).map((c) => (
-        <span
-          key={c.id}
-          className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs truncate max-w-[80px]"
-        >
-          {c.name}
-        </span>
-      ))}
-    </div>
-  );
-
-  const FavStar = ({ size = "md" }: { size?: "sm" | "md" }) => (
-    <StarIcon
-      fill={technology.favoris ? "yellow" : "none"}
-      color="yellow"
-      className={size === "sm" ? "w-3 h-3" : "w-4 h-4"}
-    />
-  );
-
 
   if (mobile) {
     return (

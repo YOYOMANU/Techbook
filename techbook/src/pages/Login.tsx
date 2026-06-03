@@ -15,7 +15,7 @@ import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export default function LoginPage() {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
