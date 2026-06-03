@@ -18,10 +18,10 @@ export default function RecentlyItems() {
 
   return (
     <>
-      {recents.length > 0 && <h2 className="ml-20 mt-10">Récemment ajoutés</h2>}
-      <div className="flex justify-center flex-wrap gap-10 mt-6">
+      {recents.length > 0 && <h2 className="ml-4 md:ml-20 mt-6 md:mt-10">Récemment ajoutés</h2>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:flex md:justify-center md:flex-wrap md:gap-10 mt-6 px-4 md:px-10">
         {recents.map((technology) => (
-          <Card className="w-80" key={technology.id}>
+          <Card className="w-90" key={technology.id}>
             <CardHeader>
               <CardTitle>
                 <Avatar className="mb-1">

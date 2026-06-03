@@ -47,27 +47,28 @@ export default function InfoProfile() {
     }
   };
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Informations du profil</CardTitle>
-        <CardDescription>
+    <Card className="p-3 md:p-6">
+      <CardHeader className="px-4 pt-4 pb-2 md:p-6">
+        <CardTitle className="text-lg md:text-xl">Informations du profil</CardTitle>
+        <CardDescription className="text-xs md:text-sm">
           Mettez à jour votre nom et votre adresse email.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4 md:p-6">
         <form
           onSubmit={profileForm.handleSubmit(onProfileSubmit)}
-          className="space-y-4"
+          className="space-y-3 md:space-y-4"
         >
           {profileSuccess && <SuccessBanner message={profileSuccess} />}
           {profileError && <ErrorBanner message={profileError} />}
 
           <div className="space-y-2">
-            <Label htmlFor="name">Nom complet</Label>
+            <Label htmlFor="name" className="text-xs md:text-sm">Nom complet</Label>
             <Input
               id="name"
               {...profileForm.register("name")}
               aria-invalid={!!profileForm.formState.errors.name}
+              className="text-xs md:text-sm h-8 md:h-10"
             />
             {profileForm.formState.errors.name && (
               <p className="text-xs text-destructive">
@@ -77,12 +78,13 @@ export default function InfoProfile() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-xs md:text-sm">Email</Label>
             <Input
               id="email"
               type="email"
               {...profileForm.register("email")}
               aria-invalid={!!profileForm.formState.errors.email}
+              className="text-xs md:text-sm h-8 md:h-10"
             />
             {profileForm.formState.errors.email && (
               <p className="text-xs text-destructive">
@@ -91,7 +93,7 @@ export default function InfoProfile() {
             )}
           </div>
 
-          <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+          <Button type="submit" disabled={profileForm.formState.isSubmitting} className="text-xs md:text-sm h-8 md:h-10">
             {profileForm.formState.isSubmitting
               ? "Enregistrement..."
               : "Enregistrer"}

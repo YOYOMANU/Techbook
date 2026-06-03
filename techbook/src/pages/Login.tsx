@@ -28,7 +28,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate("/", { state: { toast: `Bienvenue ${user?.name}` } });
+      navigate("/");
     } catch (err) {
       setError("Email ou mot de passe incorrect.");
     } finally {

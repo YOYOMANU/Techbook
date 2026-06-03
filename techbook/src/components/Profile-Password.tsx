@@ -53,32 +53,33 @@ export default function ProfilePassword() {
     } catch (err: any) {
       setPwError(
         err?.response?.data?.errors?.current_password?.[0] ??
-          "Une erreur est survenue.",
+        "Une erreur est survenue.",
       );
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Mot de passe</CardTitle>
-        <CardDescription>
+    <Card className="p-3 md:p-6">
+      <CardHeader className="px-4 pt-4 pb-2 md:p-6">
+        <CardTitle className="text-lg md:text-xl">Mot de passe</CardTitle>
+        <CardDescription className="text-xs md:text-sm">
           Choisissez un mot de passe fort et unique.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4 md:p-6">
         <form
           onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
-          className="space-y-4"
+          className="space-y-3 md:space-y-4"
         >
           {pwSuccess && <SuccessBanner message={pwSuccess} />}
           {pwError && <ErrorBanner message={pwError} />}
 
           <div className="space-y-2">
-            <Label htmlFor="current_password">Mot de passe actuel</Label>
+            <Label htmlFor="current_password" className="text-xs md:text-sm">Mot de passe actuel</Label>
             <PasswordInput
               id="current_password"
               {...passwordForm.register("current_password")}
+              className="text-xs md:text-sm h-8 md:h-10"
             />
             {passwordForm.formState.errors.current_password && (
               <p className="text-xs text-destructive">
@@ -88,10 +89,11 @@ export default function ProfilePassword() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="new_password">Nouveau mot de passe</Label>
+            <Label htmlFor="new_password" className="text-xs md:text-sm">Nouveau mot de passe</Label>
             <PasswordInput
               id="new_password"
               {...passwordForm.register("password")}
+              className="text-xs md:text-sm h-8 md:h-10"
             />
             {passwordForm.formState.errors.password && (
               <p className="text-xs text-destructive">
@@ -101,10 +103,11 @@ export default function ProfilePassword() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password_confirmation">Confirmer</Label>
+            <Label htmlFor="password_confirmation" className="text-xs md:text-sm">Confirmer</Label>
             <PasswordInput
               id="password_confirmation"
               {...passwordForm.register("password_confirmation")}
+              className="text-xs md:text-sm h-8 md:h-10"
             />
             {passwordForm.formState.errors.password_confirmation && (
               <p className="text-xs text-destructive">
@@ -113,7 +116,7 @@ export default function ProfilePassword() {
             )}
           </div>
 
-          <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+          <Button type="submit" disabled={passwordForm.formState.isSubmitting} className="text-xs md:text-sm h-8 md:h-10">
             {passwordForm.formState.isSubmitting
               ? "Mise à jour..."
               : "Mettre à jour"}

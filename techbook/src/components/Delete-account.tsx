@@ -53,25 +53,25 @@ export default function DeleteAccount() {
     }
   };
   return (
-    <Card className="border-destructive/50">
-      <CardHeader>
-        <CardTitle className="text-destructive">Supprimer le compte</CardTitle>
-        <CardDescription>
+    <Card className="border-destructive/50 p-3 md:p-6">
+      <CardHeader className="px-4 pt-4 pb-2 md:p-6">
+        <CardTitle className="text-destructive text-lg md:text-xl">Supprimer le compte</CardTitle>
+        <CardDescription className="text-xs md:text-sm">
           Cette action est irréversible. Toutes vos données seront supprimées.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4 md:p-6">
         {deleteError && <ErrorBanner message={deleteError} />}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" className="mt-2">
+            <Button variant="destructive" className="mt-2 text-xs md:text-sm h-8 md:h-10">
               Supprimer mon compte
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="w-[90vw] rounded-lg">
             <AlertDialogHeader>
-              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogTitle className="text-base md:text-lg">Confirmer la suppression</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs md:text-sm">
                 Entrez votre mot de passe pour confirmer. Cette action est
                 définitive.
               </AlertDialogDescription>
@@ -83,10 +83,11 @@ export default function DeleteAccount() {
               className="space-y-3 py-2"
             >
               <div className="space-y-2">
-                <Label htmlFor="delete_password">Mot de passe</Label>
+                <Label htmlFor="delete_password" className="text-xs md:text-sm">Mot de passe</Label>
                 <PasswordInput
                   id="delete_password"
                   {...deleteForm.register("password")}
+                  className="text-xs md:text-sm h-8 md:h-10"
                 />
                 {deleteForm.formState.errors.password && (
                   <p className="text-xs text-destructive">
@@ -96,12 +97,12 @@ export default function DeleteAccount() {
               </div>
             </form>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogFooter className="gap-2 md:gap-0">
+              <AlertDialogCancel className="text-xs md:text-sm h-8 md:h-10">Annuler</AlertDialogCancel>
               <AlertDialogAction
                 form="delete-form"
                 type="submit"
-                className="bg-destructive hover:bg-destructive/90"
+                className="bg-destructive hover:bg-destructive/90 text-xs md:text-sm h-8 md:h-10"
               >
                 Supprimer définitivement
               </AlertDialogAction>

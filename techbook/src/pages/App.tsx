@@ -25,8 +25,8 @@ function App() {
 
   if (loading || !collection)
     return (
-      <div className="flex justify-center items-center my-70">
-        <Button variant="secondary" disabled size="sm">
+      <div className="flex justify-center items-center my-20 md:my-70 px-2">
+        <Button variant="secondary" disabled size="sm" className="text-xs md:text-sm">
           <Spinner data-icon="inline-start" />
           Patienter
         </Button>
@@ -42,9 +42,11 @@ function App() {
       {collection.data.length > 0 ? (
         <TableSkills />
       ) : (
-        <Label className="flex justify-center items-center mt-35">
-          Aucune technologie pour l'instant
-        </Label>
+        <div className="flex justify-center items-center mt-10 md:my-25 px-4">
+          <p className="text-xs md:text-sm text-muted-foreground">
+            Aucune technologie pour l'instant
+          </p>
+        </div>
       )}
     </>
   );
