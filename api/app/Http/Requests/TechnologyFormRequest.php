@@ -28,6 +28,7 @@ class TechnologyFormRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'favoris' => 'nullable|in:0,1',
             'level_id' => ['required', 'exists:levels,id'],
+            'status_id' => ['required', 'exists:statuses,id'],
             'category_ids' => ['required', 'array'],
             'category_ids.*' => ['exists:categories,id'],
             'image' => ['nullable', 'file', 'mimetypes:image/jpeg,image/png,image/gif,image/webp,image/svg+xml', 'max:2048'],

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CategorySeeder::class,   // 1er
             LevelSeeder::class,      // 2ème
+            StatusSeeder::class,      // 2ème
             TechnologySeeder::class, // 3ème
         ]);
     }

@@ -18,8 +18,8 @@ export function CollectionPagination({ collection, onPageChange }: Props) {
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0">
+      <div className="text-muted-foreground hidden md:flex text-xs md:text-sm flex-1">
         Page {collection.meta.current_page} sur {collection.meta.last_page}
       </div>
       <nav role="navigation" aria-label="Pagination">
@@ -33,7 +33,8 @@ export function CollectionPagination({ collection, onPageChange }: Props) {
                   aria-current={link.active ? "page" : undefined}
                   data-active={link.active}
                   variant={link.active ? "outline" : "ghost"}
-                  size="icon"
+                  size="sm"
+                  className="h-8 w-8 md:h-10 md:w-10 text-xs md:text-sm p-0"
                   onClick={() => page && onPageChange(page)}
                 >
                   {label(link.label, index, collection.meta.links.length)}

@@ -10,12 +10,13 @@ import {
   createTechnology,
   getCategories,
   getLevels,
+  getStatuses,
   getTechnology,
   updateTechnology,
 } from "../lib/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { ImageInput } from "../components/ui/image-input";
-import type { Category, Level, Technology } from "../types";
+import type { Category, Level, Status, Technology } from "../types";
 import { useEffect, useState } from "react";
 import { useTechnologies } from "../context/Technologies-context";
 import { Checkbox } from "../components/ui/checkbox";
@@ -24,6 +25,7 @@ import { Label } from "../components/ui/label";
 const skillSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   level_id: z.coerce.number().min(1, "Le niveau est requis"),
+  status_id: z.coerce.number().min(1, "Le status est requis"),
   category_ids: z
     .array(z.coerce.number())
     .min(1, "Au moins une catégorie est requise"),
@@ -55,11 +57,13 @@ export default function TechnologyForm() {
   const [technology, setTechnology] = useState<Technology | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
   const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
     getCategories().then(setCategories);
     getLevels().then(setLevels);
+    getStatuses().then(setStatuses);
   }, []);
 
   const {
@@ -91,6 +95,7 @@ export default function TechnologyForm() {
           name: data.name ?? "",
           description: data.description ?? "",
           level_id: data.level?.id,
+          status_id: data.status?.id,
           favoris: data.favoris ?? false,
           category_ids: data.categories?.map((c) => c.id) ?? [],
         });
@@ -106,6 +111,7 @@ export default function TechnologyForm() {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("level_id", String(data.level_id));
+    formData.append("status_id", String(data.status_id));
     formData.append("favoris", data.favoris ? "1" : "0");
     data.category_ids.forEach((catId) =>
       formData.append("category_ids[]", String(catId)),
@@ -146,8 +152,11 @@ export default function TechnologyForm() {
     return (
       <>
         <Header />
-        <div className="max-w-xl mx-auto my-10 px-4 flex justify-center">
-          <Spinner />
+        <div className="flex justify-center items-center my-20 md:my-70 px-2">
+          <Button variant="secondary" disabled size="sm">
+            <Spinner data-icon="inline-start" />
+            Patienter
+          </Button>
         </div>
       </>
     );
@@ -156,8 +165,8 @@ export default function TechnologyForm() {
   return (
     <>
       <Header />
-      <div className="max-w-xl mx-auto my-10 px-4">
-        <h1 className="text-2xl font-semibold mb-6">
+      <div className="w-full max-w-xl mx-auto my-6 md:my-10 px-3 md:px-4">
+        <h1 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">
           {isEdit ? "Modifier la technologie" : "Ajouter une technologie"}
         </h1>
 
@@ -165,46 +174,50 @@ export default function TechnologyForm() {
           key={technology?.id ?? "new"}
           noValidate
           onSubmit={handleSubmit(handleOnSubmit)}
-          className="flex flex-col gap-5"
+          className="flex flex-col gap-3 md:gap-5"
         >
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Image</label>
+            <label className="text-xs md:text-sm font-medium">Image</label>
             <ImageInput
               accept="image/*"
               id="image"
               defaultValue={technology?.image}
               aria-invalid={!!errors.image}
-              className="w-40 h-40"
+              className="w-24 h-24 md:w-40 md:h-40"
               {...register("image")}
             />
             {errors.image && (
-              <p className="text-destructive text-sm">
+              <p className="text-destructive text-xs md:text-sm">
                 {errors.image.message as string}
               </p>
             )}
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Nom</label>
-            <Input placeholder="ex: React" {...register("name")} />
+            <label className="text-xs md:text-sm font-medium">Nom</label>
+            <Input
+              placeholder="ex: React"
+              {...register("name")}
+              className="text-xs md:text-sm h-8 md:h-10"
+            />
             {errors.name && (
-              <p className="text-destructive text-sm">{errors.name.message}</p>
+              <p className="text-destructive text-xs md:text-sm">{errors.name.message}</p>
             )}
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-xs md:text-sm font-medium">Description</label>
             <textarea
               placeholder="Courte description..."
-              className="border rounded-md px-3 py-2 text-sm resize-none h-20 bg-background"
+              className="border rounded-md px-3 py-2 text-xs md:text-sm resize-none h-20 bg-background"
               {...register("description")}
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Niveau</label>
+            <label className="text-xs md:text-sm font-medium">Niveau</label>
             <select
-              className="border rounded-md px-3 py-2 text-sm bg-background"
+              className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("level_id")}
             >
               <option value="">-- Choisir un niveau --</option>
@@ -215,8 +228,27 @@ export default function TechnologyForm() {
               ))}
             </select>
             {errors.level_id && (
-              <p className="text-destructive text-sm">
+              <p className="text-destructive text-xs md:text-sm">
                 {errors.level_id.message}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs md:text-sm font-medium">Status</label>
+            <select
+              className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
+              {...register("status_id")}
+            >
+              <option value=""> -- Choisir un Status --</option>
+              {statuses.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            {errors.status_id && (
+              <p className="text-destructive text-xs md:text-sm">
+                {errors.status_id.message}
               </p>
             )}
           </div>
@@ -230,27 +262,26 @@ export default function TechnologyForm() {
                 <div className="flex flex-wrap gap-2">
                   {categories
                     ? (categories ?? []).map((c) => {
-                        const selected = field.value?.includes(c.id);
-                        return (
-                          <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => {
-                              const next = selected
-                                ? field.value.filter((catId) => catId !== c.id)
-                                : [...(field.value ?? []), c.id];
-                              field.onChange(next);
-                            }}
-                            className={`px-3 py-1 rounded-full text-sm border transition ${
-                              selected
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-foreground border-border hover:border-primary"
+                      const selected = field.value?.includes(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            const next = selected
+                              ? field.value.filter((catId) => catId !== c.id)
+                              : [...(field.value ?? []), c.id];
+                            field.onChange(next);
+                          }}
+                          className={`px-3 py-1 rounded-full text-sm border transition ${selected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary"
                             }`}
-                          >
-                            {c.name.toUpperCase()}
-                          </button>
-                        );
-                      })
+                        >
+                          {c.name.toUpperCase()}
+                        </button>
+                      );
+                    })
                     : ""}
                 </div>
               )}

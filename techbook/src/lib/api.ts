@@ -4,15 +4,99 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
+// ✅ Interceptor requête : token + FormData
 api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+
   if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
   }
+
   return config;
 });
+
+// ✅ Interceptor réponse : redirection 401
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  },
+);
+
+// ✅ Auth
+export async function login(email: string, password: string) {
+  const response = await api.post("/login", { email, password });
+  return response.data;
+}
+
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+  password_confirmation: string,
+) {
+  const response = await api.post("/register", {
+    name,
+    email,
+    password,
+    password_confirmation,
+  });
+  return response.data;
+}
+
+export async function logout() {
+  await api.post("/logout");
+  localStorage.removeItem("token");
+}
+
+export async function getMe() {
+  const response = await api.get("/me");
+  return response.data;
+}
+
+export async function updateProfile(name: string, email: string) {
+  const response = await api.put("/profile", { name, email });
+  return response.data;
+}
+
+export async function updatePassword(
+  current_password: string,
+  password: string,
+  password_confirmation: string,
+) {
+  const response = await api.put("/profile/password", {
+    current_password,
+    password,
+    password_confirmation,
+  });
+  return response.data;
+}
+
+export async function deleteAccount(password: string) {
+  const response = await api.delete("/profile", { data: { password } });
+  return response.data;
+}
+
+export async function updateAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("avatar", file);
+  const response = await api.post("/profile/avatar", formData);
+  return response.data;
+}
+
+export async function destroyAvatar() {
+  const response = await api.delete("/profile/avatar");
+  return response.data;
+}
 
 export async function getTechnologies(page = 1) {
   try {
@@ -58,6 +142,17 @@ export async function getLevels() {
     throw error;
   }
 }
+
+export async function getStatuses() {
+  try {
+    const response = await api.get("/statuses");
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function getTechnology(id: number) {
   try {
     const response = await api.get(`/technologies/${id}`);
@@ -79,6 +174,7 @@ export async function createTechnology(formData: FormData) {
     throw error;
   }
 }
+
 export async function updateTechnology(id: string, formData: FormData) {
   try {
     formData.append("_method", "PUT");

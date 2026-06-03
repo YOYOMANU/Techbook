@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://techbook-front-5jf7.onrender.com'],
+    'allowed_origins' => ['https://techbook-front-5jf7.onrender.com', 'http://localhost:5173'],
 
     'allowed_origins_patterns' => [],
 

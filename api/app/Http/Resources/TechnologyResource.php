@@ -19,6 +19,7 @@ class TechnologyResource extends JsonResource
             'name' => $this->resource->name,
             'description' => $this->resource->description,
             'favoris' => $this->resource->favoris,
+            'status' => new StatusResource($this->resource->status),
             'categories' => CategoryResource::collection($this->categories),
             'level' => new LevelResource($this->resource->level),
             'image' => $this->getFirstMediaUrl('image', 'thumb'),
