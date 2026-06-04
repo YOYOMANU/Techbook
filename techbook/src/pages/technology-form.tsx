@@ -107,8 +107,8 @@ export default function TechnologyForm() {
         reset({
           name: data.name ?? "",
           description: data.description ?? "",
-          level_id: data.level?.id,
-          status_id: data.status?.id,
+          level_id: Number(data.level?.id),
+          status_id: Number(data.status?.id),
           favoris: data.favoris ?? false,
           category_ids: data.categories?.map((c) => c.id) ?? [],
         });
@@ -249,13 +249,13 @@ export default function TechnologyForm() {
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Niveau</label>
             <select
+              key={`level-${technology?.level?.id}`}
               className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("level_id")}
-              defaultValue={technology?.level?.id ?? ""}  // ← ajoute ça
             >
               <option value="">-- Choisir un niveau --</option>
               {levels.map((l) => (
-                <option key={l.id} value={l.id}>
+                <option key={l.id} value={String(l.id)}>
                   {l.name.toUpperCase()}
                 </option>
               ))}
@@ -269,17 +269,18 @@ export default function TechnologyForm() {
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Status</label>
             <select
+              key={`status-${technology?.status?.id}`}
               className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("status_id")}
-              defaultValue={technology?.status?.id ?? ""}
             >
-              <option value=""> -- Choisir un Status --</option>
+              <option value="">-- Choisir un Status --</option>
               {statuses.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={String(s.id)}>
                   {s.name.toUpperCase()}
                 </option>
               ))}
             </select>
+
             {errors.status_id && (
               <p className="text-destructive text-xs md:text-sm">
                 {errors.status_id.message}
