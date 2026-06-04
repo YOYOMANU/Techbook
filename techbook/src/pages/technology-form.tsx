@@ -248,7 +248,7 @@ export default function TechnologyForm() {
               render={({ field }) => (
                 <select
                   className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-                  value={field.value || ""}
+                  value={field.value > 0 ? field.value : ""}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   onBlur={field.onBlur}
                 >
@@ -277,7 +277,7 @@ export default function TechnologyForm() {
               render={({ field }) => (
                 <select
                   className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-                  value={field.value || ""}
+                  value={field.value > 0 ? field.value : ""}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   onBlur={field.onBlur}
                 >
