@@ -34,7 +34,7 @@ COPY conf/nginx/nginx-site.conf /etc/nginx/http.d/default.conf
 COPY conf/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 RUN chmod +x /var/www/html/start.sh \
-    && mkdir -p /var/run/nginx /var/run/php
+    && mkdir -p /var/run/nginx /var/run/php /var/log/nginx
 
 ENV PORT=8080
 EXPOSE 8080
