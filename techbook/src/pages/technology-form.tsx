@@ -49,7 +49,7 @@ const skillSchema = z.object({
 export type TechnologyFormData = z.infer<typeof skillSchema>;
 
 export default function TechnologyForm() {
-  const { updateTechnologyInState } = useTechnologies();
+  const { updateTechnologyInState, refresh } = useTechnologies();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
@@ -101,11 +101,18 @@ export default function TechnologyForm() {
           return;
         }
 
+        // ✅ On fetch la tech APRÈS les listes — tout arrive ensemble
         const data: Technology = await getTechnology(parseInt(id));
         setTechnology(data);
 
-        const statusId = parseInt(String(data.status?.id), 10) || 0;
-        const levelId = parseInt(String(data.level?.id), 10) || 0;
+        // ✅ data.status peut être null si la relation n'est pas eager-loaded côté API
+        // On log pour debug, et on laisse 0 — le select affichera le placeholder
+        const statusId = data.status?.id ? parseInt(String(data.status.id), 10) : 0;
+        const levelId = data.level?.id ? parseInt(String(data.level.id), 10) : 0;
+
+        if (!statusId) {
+          console.warn("[TechnologyForm] status null ou manquant sur la tech id=", data.id, "— vérifier ->load(['status']) dans TechnologyController@show");
+        }
 
         setInitialValues({
           name: data.name ?? "",
@@ -151,6 +158,7 @@ export default function TechnologyForm() {
         });
       } else {
         await createTechnology(formData);
+        refresh(); // ✅ re-fetch la liste et les recents après ajout
         navigate("/", {
           replace: true,
           state: { toast: "Technologie ajoutée avec succès !" },
@@ -321,8 +329,8 @@ export default function TechnologyForm() {
                           field.onChange(next);
                         }}
                         className={`px-3 py-1 rounded-full text-sm border transition ${selected
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-background text-foreground border-border hover:border-primary"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary"
                           }`}
                       >
                         {c.name.toUpperCase()}
