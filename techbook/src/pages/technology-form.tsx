@@ -1,4 +1,4 @@
-import { useForm, Controller, type Resolver, useWatch } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
 import axios from "axios";
 import Header from "../components/header";
 import { Button } from "../components/ui/button";
@@ -49,7 +49,7 @@ const skillSchema = z.object({
 export type TechnologyFormData = z.infer<typeof skillSchema>;
 
 export default function TechnologyForm() {
-  const { refresh, updateTechnologyInState } = useTechnologies();
+  const { updateTechnologyInState } = useTechnologies();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
@@ -60,12 +60,6 @@ export default function TechnologyForm() {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [fetchError, setFetchError] = useState<string | null>(null);
-
-  useEffect(() => {
-    getCategories().then(setCategories);
-    getLevels().then(setLevels);
-    getStatuses().then(setStatuses);
-  }, []);
 
   const {
     register,
@@ -80,13 +74,12 @@ export default function TechnologyForm() {
     defaultValues: {
       name: "",
       description: "",
+      level_id: 0,
+      status_id: 0,
       category_ids: [],
       favoris: false,
     },
   });
-
-  const watchedStatusId = useWatch({ control, name: "status_id" });
-  const watchedLevelId = useWatch({ control, name: "level_id" });
 
   useEffect(() => {
     const init = async () => {
@@ -145,14 +138,12 @@ export default function TechnologyForm() {
       if (isEdit) {
         const response = await updateTechnology(id!, formData);
         updateTechnologyInState(response.data);
-        refresh();
         navigate("/", {
           replace: true,
           state: { toast: "Technologie mise à jour avec succès !" },
         });
       } else {
         await createTechnology(formData);
-        refresh();
         navigate("/", {
           replace: true,
           state: { toast: "Technologie ajoutée avec succès !" },
@@ -184,7 +175,6 @@ export default function TechnologyForm() {
       </>
     );
   }
-
 
   if (fetchError) {
     return (
@@ -249,43 +239,57 @@ export default function TechnologyForm() {
             />
           </div>
 
+          {/* ✅ level_id via Controller — pré-sélection garantie */}
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Niveau</label>
-            <select
-              className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-              {...register("level_id")}
-              value={watchedLevelId ?? ""}
-              onChange={(e) => register("level_id").onChange(e)}
-            >
-              <option value="">-- Choisir un niveau --</option>
-              {levels.map((l) => (
-                <option key={l.id} value={String(l.id)}>
-                  {l.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="level_id"
+              control={control}
+              render={({ field }) => (
+                <select
+                  className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onBlur={field.onBlur}
+                >
+                  <option value="">-- Choisir un niveau --</option>
+                  {levels.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.name.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
             {errors.level_id && (
               <p className="text-destructive text-xs md:text-sm">
                 {errors.level_id.message}
               </p>
             )}
           </div>
+
+          {/* ✅ status_id via Controller — pré-sélection garantie */}
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Status</label>
-            <select
-              className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-              {...register("status_id")}
-              value={watchedStatusId ?? ""}
-              onChange={(e) => register("status_id").onChange(e)}
-            >
-              <option value=""> -- Choisir un Status --</option>
-              {statuses.map((s) => (
-                <option key={s.id} value={String(s.id)}>
-                  {s.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
-
+            <Controller
+              name="status_id"
+              control={control}
+              render={({ field }) => (
+                <select
+                  className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onBlur={field.onBlur}
+                >
+                  <option value="">-- Choisir un Status --</option>
+                  {statuses.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
             {errors.status_id && (
               <p className="text-destructive text-xs md:text-sm">
                 {errors.status_id.message}
@@ -300,29 +304,27 @@ export default function TechnologyForm() {
               control={control}
               render={({ field }) => (
                 <div className="flex flex-wrap gap-2">
-                  {categories
-                    ? (categories ?? []).map((c) => {
-                      const selected = field.value?.includes(c.id);
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            const next = selected
-                              ? field.value.filter((catId) => catId !== c.id)
-                              : [...(field.value ?? []), c.id];
-                            field.onChange(next);
-                          }}
-                          className={`px-3 py-1 rounded-full text-sm border transition ${selected
+                  {(categories ?? []).map((c) => {
+                    const selected = field.value?.includes(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          const next = selected
+                            ? field.value.filter((catId) => catId !== c.id)
+                            : [...(field.value ?? []), c.id];
+                          field.onChange(next);
+                        }}
+                        className={`px-3 py-1 rounded-full text-sm border transition ${selected
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-background text-foreground border-border hover:border-primary"
-                            }`}
-                        >
-                          {c.name.toUpperCase()}
-                        </button>
-                      );
-                    })
-                    : ""}
+                          }`}
+                      >
+                        {c.name.toUpperCase()}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             />
