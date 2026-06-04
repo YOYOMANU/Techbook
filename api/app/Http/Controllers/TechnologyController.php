@@ -32,7 +32,9 @@ class TechnologyController extends Controller
             );
         }
 
-        $technologies = $query->latest()
+        // ✅ orderBy created_at explicite — évite le réordonnancement
+        // quand updated_at est touché (ex: upload image via Spatie)
+        $technologies = $query->orderBy('created_at', 'desc')
             ->paginate(10)
             ->appends($request->only(['sort', 'search']));
 
@@ -44,25 +46,25 @@ class TechnologyController extends Controller
                 $request->user()
                     ->technologies()
                     ->with(['categories', 'level', 'status'])
-                    ->latest()
+                    ->orderBy('created_at', 'desc')
                     ->take(3)
                     ->get()
             ),
-             'stats' => [
-        'total' => (clone $userTechs)->count(),
+            'stats' => [
+                'total' => (clone $userTechs)->count(),
 
-        'maitrises' => (clone $userTechs)
-            ->whereHas('status', fn ($q) => $q->where('name', 'Maîtrisée'))
-            ->count(),
+                'maitrises' => (clone $userTechs)
+                    ->whereHas('status', fn ($q) => $q->where('name', 'Maîtrisée'))
+                    ->count(),
 
-        'en_cours' => (clone $userTechs)
-            ->whereHas('status', fn ($q) => $q->where('name', 'En cour'))
-            ->count(),
+                'en_cours' => (clone $userTechs)
+                    ->whereHas('status', fn ($q) => $q->where('name', 'En cour'))
+                    ->count(),
 
-        'a_explorer' => (clone $userTechs)
-            ->whereHas('status', fn ($q) => $q->where('name', 'À explorer'))
-            ->count(),
-    ],
+                'a_explorer' => (clone $userTechs)
+                    ->whereHas('status', fn ($q) => $q->where('name', 'À explorer'))
+                    ->count(),
+            ],
         ]);
     }
 
@@ -71,10 +73,8 @@ class TechnologyController extends Controller
      */
     public function store(TechnologyFormRequest $request)
     {
-
         $validated = $request->validated();
         $validated['favoris'] = $request->boolean('favoris');
-
 
         // ✅ user_id assigné automatiquement via la relation
         $technology = $request->user()->technologies()->create($validated);
