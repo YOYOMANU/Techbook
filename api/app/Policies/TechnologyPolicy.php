@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Technology;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TechnologyPolicy
 {
@@ -21,7 +20,7 @@ class TechnologyPolicy
      */
     public function view(User $user, Technology $technology): bool
     {
-        return $user->id === $technology->user_id;
+        return (int) $user->id === (int) $technology->user_id;
     }
 
     /**
@@ -37,15 +36,15 @@ class TechnologyPolicy
      */
     public function update(User $user, Technology $technology): bool
     {
-        return $user->id === $technology->user_id;
+        return (int) $user->id === (int) $technology->user_id;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Technology $technology): bool
+   public function delete(User $user, Technology $technology): bool
     {
-        return $user->id === $technology->user_id;
+        return (int) $user->id === (int) $technology->user_id;
     }
 
     /**
