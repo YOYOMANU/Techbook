@@ -18,5 +18,7 @@ mkdir -p /var/run/php
 # Démarrer php-fpm en arrière-plan
 php-fpm -D
 
-# Démarrer nginx au premier plan
+# Démarrer nginx au premier plan avec le port dynamique
+sed -i "s/listen 80;/listen ${PORT:-80};/" /etc/nginx/http.d/default.conf
 nginx -g "daemon off;"
+
