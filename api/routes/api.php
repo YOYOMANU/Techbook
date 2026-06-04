@@ -55,14 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('technologies', TechnologyController::class);
 });
 
-// ⚠️ Temporaire — à supprimer après debug
-Route::get('/debug-log', function () {
-    $log = storage_path('logs/laravel.log');
-    if (!file_exists($log)) return response()->json(['error' => 'No log file']);
-    
-    $lines = array_slice(file($log), -50);
-    return response()->json(['log' => implode('', $lines)]);
-});
 
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::post('/admin/technologies',                    [TechnologyController::class, 'store']);
