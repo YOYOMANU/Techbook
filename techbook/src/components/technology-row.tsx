@@ -5,6 +5,17 @@ import { TableCell, TableRow } from "./ui/table";
 import { EditIcon, StarIcon, TrashIcon } from "lucide-react";
 import { deleteTechnology } from "../lib/api";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 type Props = {
   technology: Technology;
@@ -15,15 +26,38 @@ type Props = {
 export default function TechnologyRow({ technology, onDelete, mobile }: Props) {
   const navigation = useNavigate();
 
-  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    const choice = confirm("Voulez-vous vraiment supprimer cette technologie ?");
-    if (!choice) return;
+  const handleDelete = async () => {
     await deleteTechnology(technology.id);
     onDelete();
     toast.success("Technologie supprimée avec succès !");
   };
 
+  const DeleteButton = (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="sm" variant="destructive" className={mobile ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}>
+          <TrashIcon className={mobile ? "w-3 h-3" : "w-3 h-3"} />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Supprimer la technologie</AlertDialogTitle>
+          <AlertDialogDescription>
+            Voulez-vous vraiment supprimer <span className="font-medium text-foreground">{technology.name}</span> ? Cette action est irréversible.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Supprimer
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 
   if (mobile) {
     return (
@@ -56,16 +90,13 @@ export default function TechnologyRow({ technology, onDelete, mobile }: Props) {
             <Button onClick={() => navigation(`/edit/${technology.id}`)} size="sm" variant="outline" className="h-7 w-7 p-0">
               <EditIcon className="w-3 h-3" />
             </Button>
-            <Button onClick={handleDelete} size="sm" variant="destructive" className="h-7 w-7 p-0">
-              <TrashIcon className="w-3 h-3" />
-            </Button>
+            {DeleteButton}
           </div>
         </div>
       </div>
     );
   }
 
-  // Desktop — version originale intacte
   return (
     <TableRow className="hover:cursor-pointer">
       <TableCell className="p-2 md:p-3" onClick={() => navigation(`/edit/${technology.id}`)}>
@@ -92,9 +123,7 @@ export default function TechnologyRow({ technology, onDelete, mobile }: Props) {
           <Button asChild size="sm" variant="outline" className="h-8 w-8 p-0">
             <Link to={`/edit/${technology.id}`}><EditIcon className="w-3 h-3" /></Link>
           </Button>
-          <Button onClick={handleDelete} size="sm" variant="destructive" className="h-8 w-8 p-0">
-            <TrashIcon className="w-3 h-3" />
-          </Button>
+          {DeleteButton}
         </div>
       </TableCell>
     </TableRow>
