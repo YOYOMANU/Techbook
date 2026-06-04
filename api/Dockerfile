@@ -36,7 +36,7 @@ COPY conf/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 RUN chmod +x /var/www/html/start.sh \
     && mkdir -p /var/run/nginx /var/run/php
 
-ENV PORT=80
-EXPOSE 80
+ENV PORT=8080
+EXPOSE 8080
 
-CMD ["/var/www/html/start.sh"]
+CMD ["bash", "-c", "/var/www/html/start.sh"]
