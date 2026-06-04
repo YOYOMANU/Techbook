@@ -1,4 +1,4 @@
-import { useForm, Controller, type Resolver } from "react-hook-form";
+import { useForm, Controller, type Resolver, useWatch } from "react-hook-form";
 import axios from "axios";
 import Header from "../components/header";
 import { Button } from "../components/ui/button";
@@ -84,6 +84,9 @@ export default function TechnologyForm() {
       favoris: false,
     },
   });
+
+  const watchedStatusId = useWatch({ control, name: "status_id" });
+  const watchedLevelId = useWatch({ control, name: "level_id" });
 
   useEffect(() => {
     const init = async () => {
@@ -249,9 +252,10 @@ export default function TechnologyForm() {
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Niveau</label>
             <select
-              key={`level-${technology?.level?.id}`}
               className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("level_id")}
+              value={watchedLevelId ?? ""}
+              onChange={(e) => register("level_id").onChange(e)}
             >
               <option value="">-- Choisir un niveau --</option>
               {levels.map((l) => (
@@ -269,11 +273,12 @@ export default function TechnologyForm() {
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Status</label>
             <select
-              key={`status-${technology?.status?.id}`}
               className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("status_id")}
+              value={watchedStatusId ?? ""}
+              onChange={(e) => register("status_id").onChange(e)}
             >
-              <option value="">-- Choisir un Status --</option>
+              <option value=""> -- Choisir un Status --</option>
               {statuses.map((s) => (
                 <option key={s.id} value={String(s.id)}>
                   {s.name.toUpperCase()}
