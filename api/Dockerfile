@@ -1,9 +1,11 @@
 FROM php:8.4-fpm-alpine
 
-# Tout dans la même image Alpine = libs compatibles
 RUN apk add --no-cache \
     nginx \
     libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    freetype-dev \
     oniguruma-dev \
     libxml2-dev \
     postgresql-dev \
@@ -11,6 +13,10 @@ RUN apk add --no-cache \
     unzip \
     curl \
     bash \
+    && docker-php-ext-configure gd \
+        --with-jpeg \
+        --with-webp \
+        --with-freetype \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
