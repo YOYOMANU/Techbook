@@ -49,7 +49,7 @@ const skillSchema = z.object({
 export type TechnologyFormData = z.infer<typeof skillSchema>;
 
 export default function TechnologyForm() {
-  const { refresh } = useTechnologies();
+  const { refresh, updateTechnologyInState } = useTechnologies();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
@@ -140,7 +140,8 @@ export default function TechnologyForm() {
 
     try {
       if (isEdit) {
-        await updateTechnology(id!, formData);
+        const response = await updateTechnology(id!, formData);
+        updateTechnologyInState(response.data);
         refresh();
         navigate("/", {
           replace: true,

@@ -20,6 +20,7 @@ interface TechnologiesContextType {
   search: string;
   setSearch: (search: string) => void;
   refresh: () => void;
+  updateTechnologyInState: (updated: Technology) => void;
 }
 
 const TechnologiesContext = createContext<TechnologiesContextType | null>(null);
@@ -75,7 +76,7 @@ export function TechnologiesProvider({
       .then((result) => {
         if (!cancelled) setRecents(result.recents ?? []);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -123,6 +124,17 @@ export function TechnologiesProvider({
     setRefreshCount((prev) => prev + 1);
   }, []);
 
+  const updateTechnologyInState = useCallback((updated: Technology) => {
+    setCollection(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: prev.data.map(t => t.id === updated.id ? updated : t),
+      };
+    });
+    setRecents(prev => prev.map(t => t.id === updated.id ? updated : t));
+  }, []);
+
   return (
     <TechnologiesContext.Provider
       value={{
@@ -137,6 +149,7 @@ export function TechnologiesProvider({
         page,
         setPage,
         refresh: handleRefresh,
+        updateTechnologyInState,
       }}
     >
       {children}
