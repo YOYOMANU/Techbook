@@ -15,14 +15,14 @@ class TechnologyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->resource->id,
-            'name' => $this->resource->name,
+            'id'          => $this->resource->id,
+            'name'        => $this->resource->name,
             'description' => $this->resource->description,
-            'favoris' => $this->resource->favoris,
-            'status' => new StatusResource($this->resource->status),
-            'categories' => CategoryResource::collection($this->categories),
-            'level' => new LevelResource($this->resource->level),
-            'image' => $this->getFirstMediaUrl('image', 'thumb'),
+            'favoris'     => $this->resource->favoris,
+            'status'      => $this->resource->status ? new StatusResource($this->resource->status) : null,
+            'categories'  => CategoryResource::collection($this->categories),
+            'level'       => $this->resource->level ? new LevelResource($this->resource->level) : null,
+            'image'       => $this->getFirstMediaUrl('image', 'thumb'),
         ];
     }
 }
