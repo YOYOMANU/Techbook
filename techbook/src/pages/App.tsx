@@ -6,13 +6,15 @@ import TableSkills from "../components/table-skills";
 import { useEffect } from "react";
 import { Spinner } from "../components/ui/spinner";
 import { Button } from "../components/ui/button";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useTechnologies } from "../context/Technologies-context";
+import { PlusIcon } from "lucide-react";
 
 function App() {
   const location = useLocation();
   const { collection, loading } = useTechnologies();
+  const navigate = useNavigate();
 
   // Toast après une redirect
   useEffect(() => {
@@ -41,10 +43,18 @@ function App() {
       {collection.data.length > 0 ? (
         <TableSkills />
       ) : (
-        <div className="flex justify-center items-center mt-10 md:my-25 px-4">
+        <div className="flex flex-col gap-3 justify-center items-center mt-10 md:my-25 px-4">
           <p className="text-xs md:text-sm text-muted-foreground">
             Aucune technologie pour l'instant
           </p>
+          <Button
+            onClick={() => navigate("/add")}
+            className="hover:cursor-pointer w-full md:w-auto text-xs md:text-sm"
+            size="sm"
+          >
+            <PlusIcon className="w-3 h-3 md:w-4 md:h-4" />
+            Ajouter
+          </Button>
         </div>
       )}
     </>

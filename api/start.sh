@@ -9,6 +9,9 @@ php artisan view:cache
 # Migrations
 php artisan migrate --force
 
+# Remplir la BDD
+php artisan db:seed --force 
+
 # Créer le dossier du socket php-fpm
 mkdir -p /var/run/php
 

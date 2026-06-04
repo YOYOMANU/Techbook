@@ -7,21 +7,12 @@ use Illuminate\Database\Seeder;
 
 class StatusSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $statuses = [
-            'Maîtrisée',
-            'En cour',
-            'À explorer',
-        ];
+        $statuses = ['Maîtrisée', 'En cour', 'À explorer'];
 
-        foreach ($statuses as $status) {
-            Status::create([
-                'name' => $status
-            ]);
+        foreach ($statuses as $name) {
+            Status::firstOrCreate(['name' => $name]);
         }
     }
 }

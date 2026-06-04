@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('technologies', TechnologyController::class);
 });
 
+
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::post('/admin/technologies',                    [TechnologyController::class, 'store']);
 //     Route::put('/admin/technologies/{technology}',        [TechnologyController::class, 'update']);

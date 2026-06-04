@@ -13,19 +13,20 @@ import { AuthProvider } from "./context/AuthContext.tsx";
 import Register from "./pages/Register.tsx";
 import ProfilePage from "./pages/Profile.tsx";
 import NotFoundPage from "./pages/NotFound.tsx";
+import ErrorBoundary from "./components/ErrorBoundary.tsx";
 
 const router = createBrowserRouter([
-  // ✅ Route publique
+  // ✅ Routes publiques
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <Register /> },
-  { path: "*", element: <NotFoundPage /> },
 
-  // ✅ Routes protégées
+  // ✅ Routes protégées — un seul niveau de layout
   {
-    element: <ProtectedRoute children={<TechnologiesLayout />} />,
+    element: <ProtectedRoute />,         // ProtectedRoute rend <Outlet /> si auth OK
+    errorElement: <ErrorBoundary />,     // ← errorElement sur le parent, pas les enfants
     children: [
       {
-        element: <TechnologiesLayout />,
+        element: <TechnologiesLayout />, // ← un seul TechnologiesLayout
         children: [
           { path: "/", element: <App /> },
           { path: "/add", element: <TechnologyForm /> },
@@ -35,6 +36,8 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
