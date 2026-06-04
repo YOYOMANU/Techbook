@@ -22,7 +22,11 @@ class TechnologyResource extends JsonResource
             'status'      => $this->resource->status ? new StatusResource($this->resource->status) : null,
             'categories'  => CategoryResource::collection($this->categories),
             'level'       => $this->resource->level ? new LevelResource($this->resource->level) : null,
-            'image'       => $this->getFirstMediaUrl('image', 'thumb'),
+            'image' => $this->when(
+                $this->hasMedia('image'),
+                fn() => $this->getFirstMediaUrl('image', 'thumb'),
+                 null
+                ),
         ];
     }
 }
