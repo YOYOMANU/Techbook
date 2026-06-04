@@ -76,11 +76,16 @@ class TechnologySeeder extends Seeder
         ];
 
         foreach ($technologies as $tech) {
-            $level  = Level::where('name', $tech['level'])->first();
+           $level  = Level::where('name', $tech['level'])->first();
             $status = Status::where('name', $tech['status'])->first();
 
+            if (!$level || !$status) {
+                $this->command->warn("Skipping {$tech['name']}: level ou status introuvable (level={$tech['level']}, status={$tech['status']})");
+                continue;
+            }
+
             // firstOrCreate évite les doublons à chaque déploiement
-            $technology = Technology::firstOrCreate(
+            $technology = Technology::updateOrCreate(
                 [
                     'name'    => $tech['name'],
                     'user_id' => $user->id,
