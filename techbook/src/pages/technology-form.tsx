@@ -103,18 +103,22 @@ export default function TechnologyForm() {
 
         // ✅ On fetch la tech APRÈS les listes — tout arrive ensemble
         const data: Technology = await getTechnology(parseInt(id));
-        console.log(typeof data.status?.id);
-
+        console.log("status raw:", data.status);
+        console.log("status id type:", typeof data.status?.id, "value:", data.status?.id);
         setTechnology(data);
 
-        // ✅ setInitialValues déclenche `values` dans useForm — synchrone avec les options
+        // ✅ parseInt(String()) garantit un number propre peu importe si l'API
+        // retourne "2" (string) ou 2 (number) — comportement variable selon Laravel/JSON
+        const statusId = parseInt(String(data.status?.id), 10) || 0;
+        const levelId = parseInt(String(data.level?.id), 10) || 0;
+
         setInitialValues({
           name: data.name ?? "",
           description: data.description ?? "",
-          level_id: Number(data.level?.id) || 0,
-          status_id: Number(data.status?.id) || 0,
+          level_id: levelId,
+          status_id: statusId,
           favoris: data.favoris ?? false,
-          category_ids: data.categories?.map((c) => c.id) ?? [],
+          category_ids: data.categories?.map((c) => parseInt(String(c.id), 10)) ?? [],
         });
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 403) {
@@ -129,7 +133,6 @@ export default function TechnologyForm() {
 
     init();
   }, [id]);
-
 
   const handleOnSubmit = async (data: TechnologyFormData) => {
     const formData = new FormData();
@@ -170,7 +173,6 @@ export default function TechnologyForm() {
       }
     }
   };
-
 
   if (loading) {
     return (
@@ -324,8 +326,8 @@ export default function TechnologyForm() {
                           field.onChange(next);
                         }}
                         className={`px-3 py-1 rounded-full text-sm border transition ${selected
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-background text-foreground border-border hover:border-primary"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary"
                           }`}
                       >
                         {c.name.toUpperCase()}
