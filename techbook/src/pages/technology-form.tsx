@@ -248,13 +248,13 @@ export default function TechnologyForm() {
               render={({ field }) => (
                 <select
                   className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-                  value={field.value > 0 ? field.value : ""}
+                  value={field.value > 0 ? String(field.value) : ""}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   onBlur={field.onBlur}
                 >
                   <option value="">-- Choisir un niveau --</option>
                   {levels.map((l) => (
-                    <option key={l.id} value={l.id}>
+                    <option key={l.id} value={String(l.id)}>
                       {l.name.toUpperCase()}
                     </option>
                   ))}
@@ -277,13 +277,13 @@ export default function TechnologyForm() {
               render={({ field }) => (
                 <select
                   className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-                  value={field.value > 0 ? field.value : ""}
+                  value={field.value > 0 ? String(field.value) : ""}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                   onBlur={field.onBlur}
                 >
                   <option value="">-- Choisir un Status --</option>
                   {statuses.map((s) => (
-                    <option key={s.id} value={s.id}>
+                    <option key={s.id} value={String(s.id)}>
                       {s.name.toUpperCase()}
                     </option>
                   ))}
