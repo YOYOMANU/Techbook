@@ -87,7 +87,7 @@ class TechnologyController extends Controller
                 ->toMediaCollection('image');
         }
 
-        $technology->load(['categories', 'level']);
+        $technology->load(['categories', 'level', 'status']);
 
         return new TechnologyResource($technology);
     }
@@ -100,7 +100,7 @@ class TechnologyController extends Controller
         // ✅ Vérifie que la tech appartient à l'user connecté
         $this->authorize('view', $technology);
 
-        $technology->load(['categories', 'level']);
+        $technology->load(['categories', 'level', 'status']);
 
         return new TechnologyResource($technology);
     }
@@ -129,7 +129,7 @@ class TechnologyController extends Controller
                 ->toMediaCollection('image');
         }
 
-        $technology->load(['categories', 'level']);
+        $technology->load(['categories', 'level', 'status']);
 
         return new TechnologyResource($technology);
     }
