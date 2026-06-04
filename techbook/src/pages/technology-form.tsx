@@ -250,6 +250,7 @@ export default function TechnologyForm() {
             <select
               className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("level_id")}
+              defaultValue={technology?.level?.id ?? ""}  // ← ajoute ça
             >
               <option value="">-- Choisir un niveau --</option>
               {levels.map((l) => (
@@ -269,6 +270,7 @@ export default function TechnologyForm() {
             <select
               className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
               {...register("status_id")}
+              defaultValue={technology?.status?.id ?? ""}
             >
               <option value=""> -- Choisir un Status --</option>
               {statuses.map((s) => (
