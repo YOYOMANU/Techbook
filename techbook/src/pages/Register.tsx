@@ -59,7 +59,6 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    console.log(data);
     setServerError("");
     try {
       await registerUser(

@@ -59,6 +59,7 @@ export default function TechnologyForm() {
   const [levels, setLevels] = useState<Level[]>([]);
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [loading, setLoading] = useState(isEdit);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     getCategories().then(setCategories);
@@ -85,9 +86,21 @@ export default function TechnologyForm() {
   });
 
   useEffect(() => {
-    if (!id) return;
+    const init = async () => {
+      const [cats, lvls, stats] = await Promise.all([
+        getCategories(),
+        getLevels(),
+        getStatuses(),
+      ]);
+      setCategories(cats);
+      setLevels(lvls);
+      setStatuses(stats);
 
-    const fetchTechnology = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const data: Technology = await getTechnology(parseInt(id));
         setTechnology(data);
@@ -99,12 +112,18 @@ export default function TechnologyForm() {
           favoris: data.favoris ?? false,
           category_ids: data.categories?.map((c) => c.id) ?? [],
         });
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 403) {
+          setFetchError("Accès non autorisé à cette technologie.");
+        } else {
+          setFetchError("Erreur lors du chargement.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTechnology();
+    init();
   }, [id, reset]);
 
   const handleOnSubmit = async (data: TechnologyFormData) => {
@@ -157,6 +176,18 @@ export default function TechnologyForm() {
             <Spinner data-icon="inline-start" />
             Patienter
           </Button>
+        </div>
+      </>
+    );
+  }
+
+
+  if (fetchError) {
+    return (
+      <>
+        <Header />
+        <div className="flex justify-center items-center my-20 px-2">
+          <p className="text-destructive">{fetchError}</p>
         </div>
       </>
     );
@@ -274,8 +305,8 @@ export default function TechnologyForm() {
                             field.onChange(next);
                           }}
                           className={`px-3 py-1 rounded-full text-sm border transition ${selected
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-background text-foreground border-border hover:border-primary"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary"
                             }`}
                         >
                           {c.name.toUpperCase()}
