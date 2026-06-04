@@ -101,14 +101,9 @@ export default function TechnologyForm() {
           return;
         }
 
-        // ✅ On fetch la tech APRÈS les listes — tout arrive ensemble
         const data: Technology = await getTechnology(parseInt(id));
-        console.log("status raw:", data.status);
-        console.log("status id type:", typeof data.status?.id, "value:", data.status?.id);
         setTechnology(data);
 
-        // ✅ parseInt(String()) garantit un number propre peu importe si l'API
-        // retourne "2" (string) ou 2 (number) — comportement variable selon Laravel/JSON
         const statusId = parseInt(String(data.status?.id), 10) || 0;
         const levelId = parseInt(String(data.level?.id), 10) || 0;
 
@@ -326,8 +321,8 @@ export default function TechnologyForm() {
                           field.onChange(next);
                         }}
                         className={`px-3 py-1 rounded-full text-sm border transition ${selected
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background text-foreground border-border hover:border-primary"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:border-primary"
                           }`}
                       >
                         {c.name.toUpperCase()}
