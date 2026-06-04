@@ -1,43 +1,76 @@
 #!/bin/bash
-set -e
 
-echo "Starting Techbook service..."
+echo "========================================="
+echo "  Techbook service starting up"
+echo "========================================="
+
+# Default PORT to 8080 if Railway hasn't set it
 PORT=${PORT:-8080}
-echo "PORT environment variable: $PORT"
+echo "[init] PORT=$PORT"
 
-# Cache Laravel
-echo "Caching Laravel config..."
-php artisan config:cache || true
-echo "Caching Laravel routes..."
-php artisan route:cache || true
-echo "Caching Laravel views..."
-php artisan view:cache || true
+# Ensure required runtime directories exist
+mkdir -p /var/run/php /var/run/nginx
+echo "[init] Runtime directories ready"
 
-# Migrations
-echo "Running migrations..."
-php artisan migrate --force || true
+# ---------------------------------------------------------------------------
+# Laravel bootstrap — failures are logged but never abort startup
+# ---------------------------------------------------------------------------
+echo "[laravel] Caching config..."
+php artisan config:cache 2>&1 && echo "[laravel] config:cache OK" || echo "[laravel] config:cache FAILED (non-fatal)"
 
-# Remplir la BDD
-echo "Seeding database..."
-php artisan db:seed --force || true
+echo "[laravel] Caching routes..."
+php artisan route:cache 2>&1 && echo "[laravel] route:cache OK" || echo "[laravel] route:cache FAILED (non-fatal)"
 
-# Créer le dossier du socket php-fpm
-mkdir -p /var/run/php
+echo "[laravel] Caching views..."
+php artisan view:cache 2>&1 && echo "[laravel] view:cache OK" || echo "[laravel] view:cache FAILED (non-fatal)"
 
-# Démarrer php-fpm en arrière-plan
-echo "Starting php-fpm..."
+echo "[laravel] Running migrations..."
+php artisan migrate --force 2>&1 && echo "[laravel] migrate OK" || echo "[laravel] migrate FAILED (non-fatal)"
+
+echo "[laravel] Seeding database..."
+php artisan db:seed --force 2>&1 && echo "[laravel] db:seed OK" || echo "[laravel] db:seed FAILED (non-fatal)"
+
+# ---------------------------------------------------------------------------
+# php-fpm
+# ---------------------------------------------------------------------------
+echo "[php-fpm] Starting php-fpm in background..."
 php-fpm -D
+echo "[php-fpm] Waiting for php-fpm socket to become ready..."
+for i in $(seq 1 10); do
+    if [ -S /var/run/php/php8.4-fpm.sock ]; then
+        echo "[php-fpm] Socket ready after ${i}s"
+        break
+    fi
+    echo "[php-fpm] Waiting... (${i}/10)"
+    sleep 1
+done
+if [ ! -S /var/run/php/php8.4-fpm.sock ]; then
+    echo "[php-fpm] WARNING: Socket not found after 10s — nginx may fail to connect"
+fi
 
-# Configurer nginx pour écouter sur le port dynamique
-echo "Configuring nginx to listen on port $PORT..."
-sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/http.d/default.conf
-echo "Nginx config after sed:"
-grep "listen" /etc/nginx/http.d/default.conf
+# ---------------------------------------------------------------------------
+# nginx — patch the port and validate before starting
+# ---------------------------------------------------------------------------
+NGINX_CONF="/etc/nginx/http.d/default.conf"
+echo "[nginx] Patching $NGINX_CONF to listen on port $PORT..."
+if sed -i "s/listen 80;/listen ${PORT};/g" "$NGINX_CONF"; then
+    echo "[nginx] Port patch applied successfully"
+else
+    echo "[nginx] ERROR: sed failed to patch nginx config"
+    exit 1
+fi
 
-# Tester la configuration nginx
-echo "Testing nginx configuration..."
-nginx -t
+echo "[nginx] Effective listen directives:"
+grep "listen" "$NGINX_CONF"
 
-echo "Starting nginx..."
+echo "[nginx] Validating nginx configuration..."
+if nginx -t 2>&1; then
+    echo "[nginx] Configuration valid"
+else
+    echo "[nginx] ERROR: nginx configuration is invalid — aborting"
+    exit 1
+fi
+
+echo "[nginx] Starting nginx (foreground)..."
 exec nginx -g "daemon off;"
 
