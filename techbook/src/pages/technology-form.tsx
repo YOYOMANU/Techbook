@@ -58,20 +58,23 @@ export default function TechnologyForm() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
   const [statuses, setStatuses] = useState<Status[]>([]);
-  const [loading, setLoading] = useState(isEdit);
+  const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // ✅ Valeurs initiales du form — undefined tant que pas chargées
+  const [initialValues, setInitialValues] = useState<TechnologyFormData | null>(null);
 
   const {
     register,
     handleSubmit,
     control,
-    reset,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<TechnologyFormData>({
     mode: "onBlur",
     resolver: zodResolver(skillSchema) as Resolver<TechnologyFormData>,
-    defaultValues: {
+    // ✅ On passe les valeurs directement ici — plus de reset() asynchrone
+    values: initialValues ?? {
       name: "",
       description: "",
       level_id: 0,
@@ -83,28 +86,33 @@ export default function TechnologyForm() {
 
   useEffect(() => {
     const init = async () => {
-      const [cats, lvls, stats] = await Promise.all([
-        getCategories(),
-        getLevels(),
-        getStatuses(),
-      ]);
-      setCategories(cats);
-      setLevels(lvls);
-      setStatuses(stats);
-
-      if (!id) {
-        setLoading(false);
-        return;
-      }
-
       try {
+        const [cats, lvls, stats] = await Promise.all([
+          getCategories(),
+          getLevels(),
+          getStatuses(),
+        ]);
+        setCategories(cats);
+        setLevels(lvls);
+        setStatuses(stats);
+
+        if (!id) {
+          setLoading(false);
+          return;
+        }
+
+        // ✅ On fetch la tech APRÈS les listes — tout arrive ensemble
         const data: Technology = await getTechnology(parseInt(id));
+        console.log(typeof data.status?.id);
+
         setTechnology(data);
-        reset({
+
+        // ✅ setInitialValues déclenche `values` dans useForm — synchrone avec les options
+        setInitialValues({
           name: data.name ?? "",
           description: data.description ?? "",
-          level_id: Number(data.level?.id),
-          status_id: Number(data.status?.id),
+          level_id: Number(data.level?.id) || 0,
+          status_id: Number(data.status?.id) || 0,
           favoris: data.favoris ?? false,
           category_ids: data.categories?.map((c) => c.id) ?? [],
         });
@@ -120,7 +128,8 @@ export default function TechnologyForm() {
     };
 
     init();
-  }, [id, reset]);
+  }, [id]);
+
 
   const handleOnSubmit = async (data: TechnologyFormData) => {
     const formData = new FormData();
@@ -162,6 +171,7 @@ export default function TechnologyForm() {
     }
   };
 
+
   if (loading) {
     return (
       <>
@@ -196,7 +206,6 @@ export default function TechnologyForm() {
         </h1>
 
         <form
-          key={technology?.id ?? "new"}
           noValidate
           onSubmit={handleSubmit(handleOnSubmit)}
           className="flex flex-col gap-3 md:gap-5"
@@ -239,7 +248,6 @@ export default function TechnologyForm() {
             />
           </div>
 
-          {/* ✅ level_id via Controller — pré-sélection garantie */}
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Niveau</label>
             <Controller
@@ -268,7 +276,6 @@ export default function TechnologyForm() {
             )}
           </div>
 
-          {/* ✅ status_id via Controller — pré-sélection garantie */}
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Status</label>
             <Controller
@@ -317,8 +324,8 @@ export default function TechnologyForm() {
                           field.onChange(next);
                         }}
                         className={`px-3 py-1 rounded-full text-sm border transition ${selected
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-background text-foreground border-border hover:border-primary"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:border-primary"
                           }`}
                       >
                         {c.name.toUpperCase()}
