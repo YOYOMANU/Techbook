@@ -1,16 +1,19 @@
 #!/bin/bash
+set -e
 
-# Permissions storage
-chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/bootstrap/cache
+# Cache Laravel
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
 # Migrations
-php /var/www/html/artisan migrate --force
+php artisan migrate --force
 
-# Seeders
-php /var/www/html/artisan db:seed --force
+# Créer le dossier du socket php-fpm
+mkdir -p /var/run/php
 
-# Démarrage
+# Démarrer php-fpm en arrière-plan
 php-fpm -D
-service nginx start
-tail -f /var/log/nginx/error.log
+
+# Démarrer nginx au premier plan
+nginx -g "daemon off;"

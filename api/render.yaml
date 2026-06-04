@@ -1,0 +1,58 @@
+# render.yaml (à la racine du repo)
+services:
+  - type: web
+    name: techbook-api
+    runtime: php
+    rootDir: backend
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+      php artisan migrate --force
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - fromDatabase:
+          name: techbook-db
+          property: host
+        key: DB_HOST
+      - fromDatabase:
+          name: techbook-db
+          property: port
+        key: DB_PORT
+      - fromDatabase:
+          name: techbook-db
+          property: database
+        key: DB_DATABASE
+      - fromDatabase:
+          name: techbook-db
+          property: user
+        key: DB_USERNAME
+      - fromDatabase:
+          name: techbook-db
+          property: password
+        key: DB_PASSWORD
+
+  - type: web
+    name: techbook-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: techbook-db
+    databaseName: techbook
+    plan: free
