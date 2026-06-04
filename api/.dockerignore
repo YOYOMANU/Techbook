@@ -1,6 +1,14 @@
-.git
+.env
+.env.*
 node_modules
 vendor
-.env
-database/database.sqlite
 storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+public/storage
+*.log
+.git
+.gitignore
+tests
+README.md
