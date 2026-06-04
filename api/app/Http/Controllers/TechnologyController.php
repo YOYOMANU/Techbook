@@ -23,12 +23,14 @@ class TechnologyController extends Controller
             ->with(['categories', 'level', 'status']);
 
         if ($search) {
-            $query->where('name', 'LIKE', "%{$search}%");
+            // ✅ iLIKE au lieu de LIKE — PostgreSQL est case-sensitive par défaut
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
         }
 
         if ($sort) {
+            // ✅ Filtre uniquement par name — pas de colonne slug en prod (PostgreSQL)
             $query->whereHas('categories', fn($q) =>
-                $q->where('slug', $sort)->orWhere('name', $sort)
+                $q->where('name', $sort)
             );
         }
 
