@@ -2,8 +2,9 @@
 set -e
 
 echo "Starting Techbook service..."
+
 PORT=${PORT:-8080}
-echo "PORT environment variable: $PORT"
+echo "PORT: $PORT"
 
 # Cache Laravel
 php artisan config:cache
@@ -13,21 +14,23 @@ php artisan view:cache
 # Migrations
 php artisan migrate --force
 
-# Remplir la BDD
-php artisan db:seed --force 
+# Seed (non bloquant si échec)
+php artisan db:seed --force || echo "⚠️ Seed skipped or failed, continuing..."
 
-# Créer le dossier du socket php-fpm
+# Socket php-fpm
 mkdir -p /var/run/php
 
-# Démarrer php-fpm en arrière-plan
+# Démarrer php-fpm (binaire Alpine = php-fpm, pas php-fpm8.x)
 php-fpm -D
 
-# Configurer nginx pour écouter sur le port dynamique
-echo "Configuring nginx to listen on port $PORT..."
-sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/http.d/default.conf
-echo "Nginx config after sed:"
+# Attendre que le socket soit prêt
+sleep 1
+
+# Injecter le PORT dans la config nginx
+sed -i "s/listen 8080;/listen $PORT;/" /etc/nginx/http.d/default.conf
+
+echo "Nginx listen config:"
 grep "listen" /etc/nginx/http.d/default.conf
 
 echo "Starting nginx..."
-nginx -g "daemon off;"
-
+exec nginx -g "daemon off;"
