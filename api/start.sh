@@ -36,10 +36,6 @@ sed -i "s/listen 8080;/listen $PORT;/" /etc/nginx/http.d/default.conf
 echo "Nginx listen config:"
 grep "listen" /etc/nginx/http.d/default.conf
 
-# Tester la configuration nginx
-echo "Testing nginx configuration..."
-nginx -t
-
 echo "Starting nginx..."
 exec nginx -g "daemon off;"
 
