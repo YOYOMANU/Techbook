@@ -49,7 +49,7 @@ const skillSchema = z.object({
 export type TechnologyFormData = z.infer<typeof skillSchema>;
 
 export default function TechnologyForm() {
-  const { refresh } = useTechnologies();
+  const { updateTechnologyInState, refresh } = useTechnologies();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
@@ -58,54 +58,83 @@ export default function TechnologyForm() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
   const [statuses, setStatuses] = useState<Status[]>([]);
-  const [loading, setLoading] = useState(isEdit);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  useEffect(() => {
-    getCategories().then(setCategories);
-    getLevels().then(setLevels);
-    getStatuses().then(setStatuses);
-  }, []);
+  // ✅ Valeurs initiales du form — undefined tant que pas chargées
+  const [initialValues, setInitialValues] = useState<TechnologyFormData | null>(null);
 
   const {
     register,
     handleSubmit,
     control,
-    reset,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<TechnologyFormData>({
     mode: "onBlur",
     resolver: zodResolver(skillSchema) as Resolver<TechnologyFormData>,
-    defaultValues: {
+    // ✅ On passe les valeurs directement ici — plus de reset() asynchrone
+    values: initialValues ?? {
       name: "",
       description: "",
+      level_id: 0,
+      status_id: 0,
       category_ids: [],
       favoris: false,
     },
   });
 
   useEffect(() => {
-    if (!id) return;
-
-    const fetchTechnology = async () => {
+    const init = async () => {
       try {
+        const [cats, lvls, stats] = await Promise.all([
+          getCategories(),
+          getLevels(),
+          getStatuses(),
+        ]);
+        setCategories(cats);
+        setLevels(lvls);
+        setStatuses(stats);
+
+        if (!id) {
+          setLoading(false);
+          return;
+        }
+
+        // ✅ On fetch la tech APRÈS les listes — tout arrive ensemble
         const data: Technology = await getTechnology(parseInt(id));
         setTechnology(data);
-        reset({
+
+        // ✅ data.status peut être null si la relation n'est pas eager-loaded côté API
+        // On log pour debug, et on laisse 0 — le select affichera le placeholder
+        const statusId = data.status?.id ? parseInt(String(data.status.id), 10) : 0;
+        const levelId = data.level?.id ? parseInt(String(data.level.id), 10) : 0;
+
+        if (!statusId) {
+          console.warn("[TechnologyForm] status null ou manquant sur la tech id=", data.id, "— vérifier ->load(['status']) dans TechnologyController@show");
+        }
+
+        setInitialValues({
           name: data.name ?? "",
           description: data.description ?? "",
-          level_id: data.level?.id,
-          status_id: data.status?.id,
+          level_id: levelId,
+          status_id: statusId,
           favoris: data.favoris ?? false,
-          category_ids: data.categories?.map((c) => c.id) ?? [],
+          category_ids: data.categories?.map((c) => parseInt(String(c.id), 10)) ?? [],
         });
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 403) {
+          setFetchError("Accès non autorisé à cette technologie.");
+        } else {
+          setFetchError("Erreur lors du chargement.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTechnology();
-  }, [id, reset]);
+    init();
+  }, [id]);
 
   const handleOnSubmit = async (data: TechnologyFormData) => {
     const formData = new FormData();
@@ -121,15 +150,15 @@ export default function TechnologyForm() {
 
     try {
       if (isEdit) {
-        await updateTechnology(id!, formData);
-        refresh();
+        const response = await updateTechnology(id!, formData);
+        updateTechnologyInState(response.data);
         navigate("/", {
           replace: true,
           state: { toast: "Technologie mise à jour avec succès !" },
         });
       } else {
         await createTechnology(formData);
-        refresh();
+        refresh(); // ✅ re-fetch la liste et les recents après ajout
         navigate("/", {
           replace: true,
           state: { toast: "Technologie ajoutée avec succès !" },
@@ -162,6 +191,17 @@ export default function TechnologyForm() {
     );
   }
 
+  if (fetchError) {
+    return (
+      <>
+        <Header />
+        <div className="flex justify-center items-center my-20 px-2">
+          <p className="text-destructive">{fetchError}</p>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
@@ -171,7 +211,6 @@ export default function TechnologyForm() {
         </h1>
 
         <form
-          key={technology?.id ?? "new"}
           noValidate
           onSubmit={handleSubmit(handleOnSubmit)}
           className="flex flex-col gap-3 md:gap-5"
@@ -216,36 +255,53 @@ export default function TechnologyForm() {
 
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Niveau</label>
-            <select
-              className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-              {...register("level_id")}
-            >
-              <option value="">-- Choisir un niveau --</option>
-              {levels.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="level_id"
+              control={control}
+              render={({ field }) => (
+                <select
+                  className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
+                  value={field.value > 0 ? String(field.value) : ""}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onBlur={field.onBlur}
+                >
+                  <option value="">-- Choisir un niveau --</option>
+                  {levels.map((l) => (
+                    <option key={l.id} value={String(l.id)}>
+                      {l.name.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
             {errors.level_id && (
               <p className="text-destructive text-xs md:text-sm">
                 {errors.level_id.message}
               </p>
             )}
           </div>
+
           <div className="flex flex-col gap-1">
             <label className="text-xs md:text-sm font-medium">Status</label>
-            <select
-              className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
-              {...register("status_id")}
-            >
-              <option value=""> -- Choisir un Status --</option>
-              {statuses.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="status_id"
+              control={control}
+              render={({ field }) => (
+                <select
+                  className="border rounded-md px-3 py-2 text-xs md:text-sm bg-background h-8 md:h-10"
+                  value={field.value > 0 ? String(field.value) : ""}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onBlur={field.onBlur}
+                >
+                  <option value="">-- Choisir un Status --</option>
+                  {statuses.map((s) => (
+                    <option key={s.id} value={String(s.id)}>
+                      {s.name.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
             {errors.status_id && (
               <p className="text-destructive text-xs md:text-sm">
                 {errors.status_id.message}
@@ -260,29 +316,27 @@ export default function TechnologyForm() {
               control={control}
               render={({ field }) => (
                 <div className="flex flex-wrap gap-2">
-                  {categories
-                    ? (categories ?? []).map((c) => {
-                      const selected = field.value?.includes(c.id);
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            const next = selected
-                              ? field.value.filter((catId) => catId !== c.id)
-                              : [...(field.value ?? []), c.id];
-                            field.onChange(next);
-                          }}
-                          className={`px-3 py-1 rounded-full text-sm border transition ${selected
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-background text-foreground border-border hover:border-primary"
-                            }`}
-                        >
-                          {c.name.toUpperCase()}
-                        </button>
-                      );
-                    })
-                    : ""}
+                  {(categories ?? []).map((c) => {
+                    const selected = field.value?.includes(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          const next = selected
+                            ? field.value.filter((catId) => catId !== c.id)
+                            : [...(field.value ?? []), c.id];
+                          field.onChange(next);
+                        }}
+                        className={`px-3 py-1 rounded-full text-sm border transition ${selected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary"
+                          }`}
+                      >
+                        {c.name.toUpperCase()}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             />

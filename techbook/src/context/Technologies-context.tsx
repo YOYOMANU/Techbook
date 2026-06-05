@@ -7,6 +7,7 @@ import {
 } from "react";
 import type { PaginatedCollection, Technology } from "../types";
 import { getTechnologies, sortByField } from "../lib/api";
+import { useSearchParams } from "react-router-dom";
 
 interface TechnologiesContextType {
   collection: PaginatedCollection<Technology> | null;
@@ -20,11 +21,10 @@ interface TechnologiesContextType {
   search: string;
   setSearch: (search: string) => void;
   refresh: () => void;
+  updateTechnologyInState: (updated: Technology) => void;
 }
 
 const TechnologiesContext = createContext<TechnologiesContextType | null>(null);
-
-import { useSearchParams } from "react-router-dom";
 
 export function TechnologiesProvider({
   children,
@@ -33,7 +33,6 @@ export function TechnologiesProvider({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Lire depuis l'URL au lieu d'un state local
   const page = parseInt(searchParams.get("page") ?? "1");
   const sort = searchParams.get("sort") ?? "";
   const search = searchParams.get("search") ?? "";
@@ -47,6 +46,7 @@ export function TechnologiesProvider({
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     setError(null);
 
     sortByField(sort, page, search)
@@ -63,7 +63,6 @@ export function TechnologiesProvider({
         }
       });
 
-    setLoading(true);
     return () => {
       cancelled = true;
     };
@@ -75,7 +74,7 @@ export function TechnologiesProvider({
       .then((result) => {
         if (!cancelled) setRecents(result.recents ?? []);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -96,10 +95,10 @@ export function TechnologiesProvider({
     (newSort: string) => {
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
-        next.set("sort", newSort);
+        // ✅ Fix: supprimé la double écriture de sort
         if (newSort) next.set("sort", newSort);
         else next.delete("sort");
-        next.set("page", "1"); // reset page
+        next.set("page", "1");
         return next;
       });
     },
@@ -112,7 +111,7 @@ export function TechnologiesProvider({
         const next = new URLSearchParams(prev);
         if (newSearch) next.set("search", newSearch);
         else next.delete("search");
-        next.set("page", "1"); // reset page
+        next.set("page", "1");
         return next;
       });
     },
@@ -121,6 +120,17 @@ export function TechnologiesProvider({
 
   const handleRefresh = useCallback(() => {
     setRefreshCount((prev) => prev + 1);
+  }, []);
+
+  const updateTechnologyInState = useCallback((updated: Technology) => {
+    setCollection((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: prev.data.map((t) => (t.id === updated.id ? updated : t)),
+      };
+    });
+    setRecents((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   }, []);
 
   return (
@@ -137,6 +147,7 @@ export function TechnologiesProvider({
         page,
         setPage,
         refresh: handleRefresh,
+        updateTechnologyInState,
       }}
     >
       {children}

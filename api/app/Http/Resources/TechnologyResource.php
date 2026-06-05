@@ -19,10 +19,18 @@ class TechnologyResource extends JsonResource
             'name'        => $this->resource->name,
             'description' => $this->resource->description,
             'favoris'     => $this->resource->favoris,
-            'status'      => $this->resource->status ? new StatusResource($this->resource->status) : null,
+            'status' => $this->resource->status && is_object($this->resource->status)
+            ? new StatusResource($this->resource->status)
+            : null,
             'categories'  => CategoryResource::collection($this->categories),
-            'level'       => $this->resource->level ? new LevelResource($this->resource->level) : null,
-            'image'       => $this->getFirstMediaUrl('image', 'thumb'),
+            'level' => $this->resource->level && is_object($this->resource->level)
+            ? new LevelResource($this->resource->level)
+            : null,
+            'image' => $this->when(
+                $this->hasMedia('image'),
+                fn() => $this->getFirstMediaUrl('image', 'thumb'),
+                 null
+                ),
         ];
     }
 }

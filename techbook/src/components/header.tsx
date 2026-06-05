@@ -23,10 +23,12 @@ type FormValue = {
 
 export default function Header() {
   const { setSearch } = useTechnologies();
-  const { register, handleSubmit } = useForm<FormValue>();
+  const { register, handleSubmit, watch, setValue } = useForm<FormValue>({
+    defaultValues: { search: "" },
+  });
   const navigate = useNavigate();
   const [showSearch, setShowSearch] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { ref: registerRef, ...registerRest } = register("search");
 
@@ -48,14 +50,24 @@ export default function Header() {
     });
   };
 
+  // ✅ Un seul ref partagé — pointe toujours vers le champ visible
   const sharedRef = (el: HTMLInputElement | null) => {
     registerRef(el);
-    (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
+    inputRef.current = el;
   };
 
-  const sharedonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     registerRest.onChange(e);
+    // ✅ Reset la recherche dès que le champ est vidé
     if (e.target.value === "") setSearch("");
+  };
+
+  // ✅ Champ unique partagé entre desktop et mobile via les mêmes props
+  const searchInputProps = {
+    ...registerRest,
+    ref: sharedRef,
+    placeholder: "Rechercher une techno...",
+    onChange: handleChange,
   };
 
   return (
@@ -69,12 +81,7 @@ export default function Header() {
         {/* Search bar — sm+ */}
         <form onSubmit={handleSubmit(onSearch)} className="hidden sm:flex gap-1">
           <InputGroup className="w-64 md:w-80">
-            <InputGroupInput
-              {...registerRest}
-              ref={sharedRef}
-              placeholder="Rechercher une techno..."
-              onChange={sharedonChange}
-            />
+            <InputGroupInput {...searchInputProps} />
             <InputGroupAddon>
               <SearchIcon />
             </InputGroupAddon>
@@ -132,11 +139,14 @@ export default function Header() {
         <div className="sm:hidden px-4 pb-3">
           <form onSubmit={handleSubmit(onSearch)} className="flex gap-1">
             <InputGroup className="flex-1">
+              {/* ✅ Champ mobile indépendant — state local pour éviter le conflit de ref */}
               <InputGroupInput
-                {...registerRest}
-                ref={sharedRef}
                 placeholder="Rechercher une techno..."
-                onChange={sharedonChange}
+                value={watch("search")}
+                onChange={(e) => {
+                  setValue("search", e.target.value);
+                  if (e.target.value === "") setSearch("");
+                }}
               />
               <InputGroupAddon>
                 <SearchIcon />

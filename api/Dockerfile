@@ -36,7 +36,7 @@ COPY conf/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 RUN chmod +x /var/www/html/start.sh \
     && mkdir -p /var/run/nginx /var/run/php
 
-ENV PORT=8080
+# Pas de PORT fixe ici — Railway l'injecte dynamiquement
 EXPOSE 8080
 
-CMD ["bash", "-c", "/var/www/html/start.sh"]
+CMD ["/var/www/html/start.sh"]
