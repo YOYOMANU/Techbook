@@ -7,20 +7,24 @@ PORT=${PORT:-8080}
 echo "PORT: $PORT"
 
 # Cache Laravel
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+echo "Caching Laravel config..."
+php artisan config:cache || true
+echo "Caching Laravel routes..."
+php artisan route:cache || true
+echo "Caching Laravel views..."
+php artisan view:cache || true
 
 # Migrations
-php artisan migrate --force
+echo "Running migrations..."
+php artisan migrate --force || true
+
 
 # Seed (non bloquant si échec)
 php artisan db:seed --force || echo "⚠️ Seed skipped or failed, continuing..."
 
 # Socket php-fpm
 mkdir -p /var/run/php
-
-# Démarrer php-fpm (binaire Alpine = php-fpm, pas php-fpm8.x)
+# Démarrer php-fpm
 php-fpm -D
 
 # Attendre que le socket soit prêt
@@ -32,5 +36,10 @@ sed -i "s/listen 8080;/listen $PORT;/" /etc/nginx/http.d/default.conf
 echo "Nginx listen config:"
 grep "listen" /etc/nginx/http.d/default.conf
 
+# Tester la configuration nginx
+echo "Testing nginx configuration..."
+nginx -t
+
 echo "Starting nginx..."
 exec nginx -g "daemon off;"
+
